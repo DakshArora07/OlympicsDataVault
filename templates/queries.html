@@ -1,0 +1,131 @@
+{% extends "layout.html" %}
+{% block title %}Medal Tally{% endblock %}
+
+{% block content %}
+<div class="page-title">Medal Tally</div>
+<div class="page-subtitle">Current standings across all individual events.</div>
+
+<div data-tabs>
+    <div class="tab-bar">
+        <button class="tab-btn active" data-tab="countries">By Country</button>
+        <button class="tab-btn" data-tab="sports">By Sport</button>
+        <button class="tab-btn" data-tab="recent">Recent Gold</button>
+    </div>
+
+
+    <div data-panel="countries">
+        <div class="mb-16">
+            <input type="search" id="liveSearch" class="form-control"
+                   placeholder="Search country..." style="max-width:260px;">
+        </div>
+        {% if individual_tally %}
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Country</th>
+                        <th>Continent</th>
+                        <th>&#127948; Gold</th>
+                        <th>&#127949; Silver</th>
+                        <th>&#127950; Bronze</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in individual_tally %}
+                    <tr data-searchable>
+                        <td class="text-muted text-small">{{ loop.index }}</td>
+                        <td>
+                            {% if row.flag %}
+                            <img src="{{ row.flag }}" alt="" width="22" height="15"
+                                 style="vertical-align:middle;margin-right:6px;border-radius:2px;"
+                                 onerror="this.style.display='none'">
+                            {% endif %}
+                            <strong>{{ row.country }}</strong>
+                        </td>
+                        <td class="text-small text-muted">{{ row.continent }}</td>
+                        <td class="gold-text">{{ row.gold or 0 }}</td>
+                        <td class="silver-text">{{ row.silver or 0 }}</td>
+                        <td class="bronze-text">{{ row.bronze or 0 }}</td>
+                        <td><strong>{{ row.total or 0 }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No medals awarded yet.</p>
+        {% endif %}
+    </div>
+
+
+    <div data-panel="sports" style="display:none;">
+        {% if sport_medals %}
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sport</th>
+                        <th>&#127948; Gold</th>
+                        <th>&#127949; Silver</th>
+                        <th>&#127950; Bronze</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in sport_medals %}
+                    <tr>
+                        <td><strong>{{ s.sport }}</strong></td>
+                        <td class="gold-text">{{ s.gold or 0 }}</td>
+                        <td class="silver-text">{{ s.silver or 0 }}</td>
+                        <td class="bronze-text">{{ s.bronze or 0 }}</td>
+                        <td><strong>{{ (s.gold or 0) + (s.silver or 0) + (s.bronze or 0) }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No sport medal data yet.</p>
+        {% endif %}
+    </div>
+
+
+    <div data-panel="recent" style="display:none;">
+        {% if gold_medalists %}
+        <div class="card">
+            <table>
+                <thead>
+                    <tr><th>Athlete</th><th>Country</th><th>Sport</th><th>Event</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                    {% for g in gold_medalists %}
+                    <tr>
+                        <td>&#127948; <strong>{{ g.first_name }} {{ g.last_name }}</strong></td>
+                        <td>
+                            {% if g.flag %}
+                            <img src="{{ g.flag }}" alt="" width="20" height="14"
+                                 style="vertical-align:middle;margin-right:4px;border-radius:2px;"
+                                 onerror="this.style.display='none'">
+                            {% endif %}
+                            {{ g.country }}
+                        </td>
+                        <td class="text-small">{{ g.sport }}</td>
+                        <td>
+                            <a href="{{ url_for('event_detail', format=g.format, gender=g.gender_category) }}" class="text-small">
+                                {{ g.format }} &middot; {{ g.gender_category }}
+                            </a>
+                        </td>
+                        <td class="text-small text-muted">{{ g.date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No gold medals awarded yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
