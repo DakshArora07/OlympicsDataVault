@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block title %}Venues{% endblock %}
+
+{% block content %}
+<div class="page-title">Venues</div>
+<div class="page-subtitle">Stadiums and arenas hosting the Olympic Games.</div>
+
+<div class="mb-16">
+    <input type="search" id="liveSearch" class="form-control"
+           placeholder="Search venues..." style="max-width:280px;">
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+    {% for v in venues %}
+    <div class="card" data-searchable>
+        <div class="card-header">&#127967; {{ v.name }}</div>
+        <div class="card-body">
+            <p class="text-muted text-small mb-8">{{ v.city }}, {{ v.country }}</p>
+
+            <table style="width:100%;">
+                <tr>
+                    <td class="text-muted text-small" style="padding:3px 0;width:110px;">Capacity</td>
+                    <td><strong>{{ "{:,}".format(v.capacity) }}</strong></td>
+                </tr>
+                <tr>
+                    <td class="text-muted text-small" style="padding:3px 0;">Events</td>
+                    <td><strong>{{ v.event_count }}</strong></td>
+                </tr>
+            </table>
+
+            <div class="cap-bar-bg mt-8">
+                <div class="cap-bar-fill"
+                     style="width:{{ [((v.capacity / 80000) * 100)|int, 100]|min }}%;"></div>
+            </div>
+            <div class="text-muted text-small mt-8">{{ "{:,}".format(v.capacity) }} seats</div>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No venues found.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

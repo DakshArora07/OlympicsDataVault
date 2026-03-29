@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block title %}Events{% endblock %}
+
+{% block content %}
+<div class="page-title">Events</div>
+<div class="page-subtitle">All Olympic events, formats and venues — {{ events|length }} event(s) total.</div>
+
+<div class="mb-16">
+    <input type="search" id="liveSearch" class="form-control"
+           placeholder="Filter events..." style="max-width:280px;">
+</div>
+
+<div class="card">
+    {% if events %}
+    <table>
+        <thead>
+            <tr>
+                <th>Sport</th>
+                <th>Format</th>
+                <th>Gender</th>
+                <th>Type</th>
+                <th>Venue</th>
+                <th>City</th>
+                <th>Capacity</th>
+                <th>Games</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in events %}
+            <tr data-searchable>
+                <td><strong>{{ e.sport }}</strong></td>
+                <td><span class="badge badge-blue">{{ e.format }}</span></td>
+                <td>
+                    <span class="badge {% if e.gender_category == 'Male' %}badge-blue{% else %}badge-red{% endif %}">
+                        {{ e.gender_category }}
+                    </span>
+                </td>
+                <td>
+                    {% if e.event_type == 'Team' %}
+                        <span class="badge badge-green">Team ({{ e.team_size }})</span>
+                    {% else %}
+                        <span class="badge badge-gray">Individual</span>
+                    {% endif %}
+                </td>
+                <td class="text-small">{{ e.venue_name }}</td>
+                <td class="text-small text-muted">{{ e.city }}</td>
+                <td class="text-small">{{ "{:,}".format(e.capacity) }}</td>
+                <td>{{ e.game_count }}</td>
+                <td>
+                    <a href="{{ url_for('event_detail', format=e.format, gender=e.gender_category) }}"
+                       class="btn btn-secondary btn-sm">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="card-body text-muted text-center">No events found.</div>
+    {% endif %}
+</div>
+{% endblock %}

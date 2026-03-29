@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+{% block title %}Athletes{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-16">
+    <div>
+        <div class="page-title">Athletes</div>
+        <div class="page-subtitle">{{ athletes|length }} athlete(s) registered</div>
+    </div>
+    <a href="{{ url_for('register_athlete') }}" class="btn btn-primary">+ Register Athlete</a>
+</div>
+
+
+<form method="GET" action="{{ url_for('athletes') }}" class="card card-body mb-16">
+    <div class="filter-bar">
+        <div class="form-group">
+            <label class="form-label">Search</label>
+            <input type="search" name="search" class="form-control"
+                   placeholder="Name or email..." value="{{ search }}" style="width:220px;">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Sport</label>
+            <select name="sport" class="form-control" style="width:160px;">
+                <option value="">All Sports</option>
+                {% for s in sports %}
+                <option value="{{ s }}" {% if sport_filter == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Gender</label>
+            <select name="gender" class="form-control" style="width:110px;">
+                <option value="">All</option>
+                <option value="Male"   {% if gender_filter == 'Male'   %}selected{% endif %}>Male</option>
+                <option value="Female" {% if gender_filter == 'Female' %}selected{% endif %}>Female</option>
+            </select>
+        </div>
+        <div class="form-group" style="padding-top:22px;">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="{{ url_for('athletes') }}" class="btn btn-secondary">Clear</a>
+        </div>
+    </div>
+</form>
+
+<!-- Table -->
+{% if athletes %}
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Sport</th>
+                <th>Gender</th>
+                <th>Country</th>
+                <th>Height</th>
+                <th>Weight</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for a in athletes %}
+            <tr data-searchable>
+                <td class="text-muted text-small">#{{ a.registration_number }}</td>
+                <td>
+                    <div class="flex-center">
+                        <div class="avatar">{{ a.first_name[0] }}{{ a.last_name[0] }}</div>
+                        <div>
+                            <div><strong>{{ a.first_name }} {{ a.last_name }}</strong></div>
+                            <div class="text-muted text-small">{{ a.email or '' }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ a.sport }}</td>
+                <td>
+                    <span class="badge {% if a.gender == 'Male' %}badge-blue{% else %}badge-red{% endif %}">
+                        {{ a.gender }}
+                    </span>
+                </td>
+                <td>
+                    {% if a.flag %}
+                    <img src="{{ a.flag }}" alt="" width="20" height="14"
+                         style="vertical-align:middle;margin-right:4px;border-radius:2px;"
+                         onerror="this.style.display='none'">
+                    {% endif %}
+                    {{ a.country_name or '—' }}
+                </td>
+                <td class="text-small">{{ a.height }} cm</td>
+                <td class="text-small">{{ a.weight }} kg</td>
+                <td>
+                    <a href="{{ url_for('athlete_detail', reg_num=a.registration_number) }}"
+                       class="btn btn-secondary btn-sm">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card card-body text-muted text-center">
+    No athletes found. <a href="{{ url_for('register_athlete') }}">Register one?</a>
+</div>
+{% endif %}
+
+{% endblock %}

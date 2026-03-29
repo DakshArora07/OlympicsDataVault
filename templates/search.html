@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+{% block title %}Search{% endblock %}
+
+{% block content %}
+<div class="page-title">Search</div>
+<div class="page-subtitle">
+    {% if q %}Results for "{{ q }}"{% else %}Search across athletes, events and venues.{% endif %}
+</div>
+
+<form method="GET" action="{{ url_for('search') }}" style="display:flex;gap:8px;max-width:500px;margin-bottom:24px;">
+    <input type="search" name="q" class="form-control"
+           placeholder="Search athletes, events, venues..." value="{{ q }}" autofocus>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+{% if q %}
+    {% set total = results.athletes|length + results.events|length + results.venues|length %}
+    <p class="text-muted mb-16">Found <strong>{{ total }}</strong> result(s) for "{{ q }}"</p>
+
+    {% if results.athletes %}
+    <h3 style="font-size:1.1rem;margin-bottom:10px;">Athletes ({{ results.athletes|length }})</h3>
+    <div class="card mb-16">
+        <table>
+            <thead><tr><th>#</th><th>Name</th><th>Sport</th><th>Action</th></tr></thead>
+            <tbody>
+                {% for a in results.athletes %}
+                <tr>
+                    <td class="text-muted text-small">#{{ a.registration_number }}</td>
+                    <td><strong>{{ a.first_name }} {{ a.last_name }}</strong></td>
+                    <td class="text-small text-muted">{{ a.sport }}</td>
+                    <td>
+                        <a href="{{ url_for('athlete_detail', reg_num=a.registration_number) }}"
+                           class="btn btn-secondary btn-sm">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if results.events %}
+    <h3 style="font-size:1.1rem;margin-bottom:10px;">Events ({{ results.events|length }})</h3>
+    <div class="card mb-16">
+        <table>
+            <thead><tr><th>Sport</th><th>Format</th><th>Gender</th><th>Action</th></tr></thead>
+            <tbody>
+                {% for e in results.events %}
+                <tr>
+                    <td><strong>{{ e.sport }}</strong></td>
+                    <td><span class="badge badge-blue">{{ e.format }}</span></td>
+                    <td>{{ e.gender_category }}</td>
+                    <td>
+                        <a href="{{ url_for('event_detail', format=e.format, gender=e.gender_category) }}"
+                           class="btn btn-secondary btn-sm">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if results.venues %}
+    <h3 style="font-size:1.1rem;margin-bottom:10px;">Venues ({{ results.venues|length }})</h3>
+    <div class="card mb-16">
+        <table>
+            <thead><tr><th>Venue</th><th>City</th></tr></thead>
+            <tbody>
+                {% for v in results.venues %}
+                <tr>
+                    <td><strong>{{ v.name }}</strong></td>
+                    <td class="text-muted text-small">{{ v.city }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if total == 0 %}
+    <p class="text-muted">No results found for "{{ q }}".</p>
+    {% endif %}
+
+{% endif %}
+{% endblock %}

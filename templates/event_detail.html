@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+{% block title %}{{ event.format }} {{ event.gender_category }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{{ url_for('events') }}">Events</a> &rsaquo; {{ event.format }} {{ event.gender_category }}
+</div>
+<div class="page-title">{{ event.format }} &mdash; {{ event.gender_category }}</div>
+<div class="page-subtitle">{{ event.sport }} &mdash; {{ event.venue_name }}, {{ event.city }}</div>
+
+
+<div class="stat-row">
+    <div class="stat-box">
+        <div class="stat-label">Sport</div>
+        <div style="font-weight:bold;font-size:1.1rem;margin-top:4px;">{{ event.sport }}</div>
+    </div>
+    <div class="stat-box gold-border">
+        <div class="stat-label">Event Type</div>
+        <div style="font-weight:bold;font-size:1.1rem;margin-top:4px;">{{ event.event_type }}</div>
+    </div>
+    <div class="stat-box red-border">
+        <div class="stat-label">Venue Capacity</div>
+        <div style="font-weight:bold;font-size:1.1rem;margin-top:4px;">{{ "{:,}".format(event.capacity) }}</div>
+    </div>
+    <div class="stat-box green-border">
+        <div class="stat-label">Games Scheduled</div>
+        <div style="font-weight:bold;font-size:1.1rem;margin-top:4px;">{{ games|length }}</div>
+    </div>
+</div>
+
+<div class="two-col" style="align-items:start;">
+
+
+    <div>
+        <div class="card mb-16">
+            <div class="card-header">Game Schedule</div>
+            {% if games %}
+            <table>
+                <thead><tr><th>Game</th><th>Date</th><th>Participants</th></tr></thead>
+                <tbody>
+                    {% for g in games %}
+                    <tr>
+                        <td><span class="badge badge-blue">{{ g.game_number }}</span></td>
+                        <td class="text-small">{{ g.date }}</td>
+                        <td>{{ g.participants }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="card-body text-muted">No games scheduled.</div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div class="card-header">Venue</div>
+            <div class="card-body">
+                <p><strong>{{ event.venue_name }}</strong></p>
+                <p class="text-muted text-small">{{ event.city }}, {{ event.venue_country }}</p>
+                <p class="text-small mt-8">Capacity: {{ "{:,}".format(event.capacity) }} seats</p>
+                <div class="cap-bar-bg mt-8">
+                    <div class="cap-bar-fill"
+                         style="width:{{ [((event.capacity / 80000) * 100)|int, 100]|min }}%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div>
+        <div class="card">
+            <div class="card-header">
+                Athlete Leaderboard
+                <span class="text-muted text-small" style="font-weight:normal;">aggregation query</span>
+            </div>
+            {% if leaderboard %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Athlete</th>
+                        <th>Country</th>
+                        <th>Games</th>
+                        <th>Best Score</th>
+                        <th>Avg Score</th>
+                        <th>Medals</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in leaderboard %}
+                    <tr>
+                        <td class="text-muted">{{ loop.index }}</td>
+                        <td><strong>{{ r.first_name }} {{ r.last_name }}</strong></td>
+                        <td class="text-small text-muted">{{ r.country }}</td>
+                        <td>{{ r.games_played }}</td>
+                        <td><strong>{{ "%.2f"|format(r.best_score) }}</strong></td>
+                        <td class="text-muted text-small">{{ "%.2f"|format(r.avg_score) }}</td>
+                        <td>
+                            {% if r.medals %}
+                                {% for m in r.medals.split(', ') %}
+                                    {% if m == 'Gold' %}&#127948;
+                                    {% elif m == 'Silver' %}&#127949;
+                                    {% elif m == 'Bronze' %}&#127950;
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}—{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="card-body text-muted text-center">No results recorded yet.</div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

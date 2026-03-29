@@ -1,0 +1,152 @@
+{% extends "layout.html" %}
+{% block title %}{{ athlete.first_name }} {{ athlete.last_name }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{{ url_for('athletes') }}">Athletes</a> &rsaquo;
+    {{ athlete.first_name }} {{ athlete.last_name }}
+</div>
+<div class="flex-between mb-16">
+    <div>
+        <div class="page-title">{{ athlete.first_name }} {{ athlete.last_name }}</div>
+        <div class="page-subtitle">{{ athlete.sport }} &mdash; Registration #{{ athlete.registration_number }}</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+        <a href="{{ url_for('edit_athlete', reg_num=athlete.registration_number) }}"
+           class="btn btn-secondary">Edit</a>
+        <form method="POST"
+              action="{{ url_for('delete_athlete', reg_num=athlete.registration_number) }}"
+              data-confirm="Delete {{ athlete.first_name }} {{ athlete.last_name }}? All their participation records will also be deleted.">
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="two-col" style="align-items:start;">
+
+
+    <div>
+        <div class="card mb-16">
+            <div class="card-header">Profile</div>
+            <div class="card-body">
+                <div class="flex-center mb-16">
+                    <div class="avatar" style="width:52px;height:52px;font-size:1.2rem;">
+                        {{ athlete.first_name[0] }}{{ athlete.last_name[0] }}
+                    </div>
+                    <div>
+                        <div style="font-weight:bold;font-size:1.1rem;">
+                            {{ athlete.first_name }}
+                            {% if athlete.middle_name %} {{ athlete.middle_name }}{% endif %}
+                            {{ athlete.last_name }}
+                        </div>
+                        <div class="text-muted text-small">{{ athlete.sport }}</div>
+                    </div>
+                </div>
+
+                <table style="width:100%;">
+                    <tr><td class="text-muted text-small" style="width:110px;padding:5px 0;">Reg. Number</td>
+                        <td><strong>#{{ athlete.registration_number }}</strong></td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">Gender</td>
+                        <td><span class="badge {% if athlete.gender == 'Male' %}badge-blue{% else %}badge-red{% endif %}">{{ athlete.gender }}</span></td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">Date of Birth</td>
+                        <td>{{ athlete.date_of_birth }}</td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">Email</td>
+                        <td class="text-small">{{ athlete.email or '—' }}</td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">Height</td>
+                        <td>{{ athlete.height }} cm</td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">Weight</td>
+                        <td>{{ athlete.weight }} kg</td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">Country</td>
+                        <td>
+                            {% if athlete.flag %}
+                            <img src="{{ athlete.flag }}" alt="" width="20" height="14"
+                                 style="vertical-align:middle;margin-right:4px;border-radius:2px;"
+                                 onerror="this.style.display='none'">
+                            {% endif %}
+                            {{ athlete.country_name or '—' }}
+                        </td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Medal Summary</div>
+            <div class="card-body">
+                {% set total = (medals.get('Gold',0) + medals.get('Silver',0) + medals.get('Bronze',0)) %}
+                {% if total > 0 %}
+                <table style="width:100%;text-align:center;">
+                    <tr>
+                        <td><div style="font-size:1.8rem;">&#127948;</div>
+                            <div class="gold-text" style="font-size:1.6rem;font-weight:bold;">{{ medals.get('Gold',0) }}</div>
+                            <div class="text-muted text-small">Gold</div></td>
+                        <td><div style="font-size:1.8rem;">&#127949;</div>
+                            <div class="silver-text" style="font-size:1.6rem;font-weight:bold;">{{ medals.get('Silver',0) }}</div>
+                            <div class="text-muted text-small">Silver</div></td>
+                        <td><div style="font-size:1.8rem;">&#127950;</div>
+                            <div class="bronze-text" style="font-size:1.6rem;font-weight:bold;">{{ medals.get('Bronze',0) }}</div>
+                            <div class="text-muted text-small">Bronze</div></td>
+                    </tr>
+                </table>
+                <p class="text-center text-muted text-small mt-8">Total: {{ total }} medal(s)</p>
+                {% else %}
+                <p class="text-muted text-center">No medals yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+
+    <div>
+        <div class="card">
+            <div class="card-header">
+                Participation History
+                <span class="badge badge-gray">{{ participations|length }} game(s)</span>
+            </div>
+            {% if participations %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Game</th>
+                        <th>Date</th>
+                        <th>Venue</th>
+                        <th>Score</th>
+                        <th>Medal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in participations %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('event_detail', format=p.format, gender=p.gender_category) }}">
+                                {{ p.format }}
+                            </a>
+                            <div class="text-muted text-small">{{ p.gender_category }} &middot; {{ p.sport }}</div>
+                        </td>
+                        <td class="text-small">{{ p.game_number }}</td>
+                        <td class="text-muted text-small">{{ p.date }}</td>
+                        <td class="text-muted text-small">{{ p.venue_name }}</td>
+                        <td><strong>{{ p.score }}</strong></td>
+                        <td>
+                            {% if p.medal == 'Gold' %}
+                                <span class="badge badge-gold">&#127948; Gold</span>
+                            {% elif p.medal == 'Silver' %}
+                                <span class="badge badge-gray">&#127949; Silver</span>
+                            {% elif p.medal == 'Bronze' %}
+                                <span class="badge" style="background:#f5e8d8;color:#7a3a00;">&#127950; Bronze</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="card-body text-muted text-center">No participation records yet.</div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
