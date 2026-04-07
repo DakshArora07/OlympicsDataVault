@@ -19,18 +19,52 @@ def get_connection():
 @app.route('/')
 @app.route("/index")
 def index():
-    return render_template('index.html', title='Index')
 
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT COUNT(*) as count
+        FROM athelete
+    """)
+    athlete_count = cursor.fetchone()['count']
+
+    cursor.execute("""
+        SELECT COUNT(*) as count
+        FROM sport
+    """)
+    sport_count = cursor.fetchone()['count']
+
+    cursor.execute("""
+        SELECT COUNT(*) as count
+        FROM country
+    """)
+    country_count = cursor.fetchone()['count']
+
+    cursor.execute("""
+        SELECT COUNT(*) as count
+        FROM venue
+    """)
+    venue_count = cursor.fetchone()['count']
+
+    #TODO: Medal Tally Query
+
+    conn.close()
+
+    return render_template('index.html',
+                           athlete_count=athlete_count,
+                           country_count=country_count,
+                           sport_count=sport_count,
+                           venue_count=venue_count
+                           )
 
 @app.route("/medals")
 def medals():
     return render_template('medals.html', title='Medals')
 
-
 @app.route("/queries")
 def queries():
     return render_template('queries.html', title='Queries')
-
 
 @app.route("/athletes")
 def athletes():
@@ -89,7 +123,6 @@ def athletes():
                            gender_filter=gender_filter
                            )
 
-
 @app.route("/athletes/<int:reg_num>")
 def athlete_detail(reg_num):
     conn = get_connection()
@@ -107,26 +140,72 @@ def athlete_detail(reg_num):
         conn.close()
         return redirect(url_for("athletes"))
 
-    # TODO: Query for all athlete participations
-    # TODO: Query for all athlete medals
+
+    cursor.execute("""
+        SELECT ap.*, g.date, e.sport, v.name as venue_name
+        FROM athelete_participation ap
+        JOIN game g ON ap.format = g.format
+            AND ap.gender_category = g.gender_category
+            AND ap.game_number = g.game_number
+        JOIN event e ON ap.format = e.format 
+               AND ap.gender_category = e.gender_category
+        JOIN venue v ON e.venue_id = v.venue_id
+        WHERE ap.athelete_registration_number = %s
+    """, (reg_num,))
+    participations = cursor.fetchall()
+
+    athlete_medals = {'Gold' : 0, 'Silver' : 0, 'Bronze' : 0}
+    for p in participations:
+        if p['medal'] in athlete_medals:
+            athlete_medals[p['medal']] += 1
 
     conn.close()
     return render_template('athlete_detail.html',
                            athlete=athlete,
-                           medals={},
-                           participations=[]
+                           medals=athlete_medals,
+                           participations=participations
                            )
-
 
 @app.route("/events")
 def events():
-    return render_template('events.html', title='Events')
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
 
+    cursor.execute("""
+            SELECT e.format, e.gender_category, e.sport,
+                   v.name AS venue_name, v.city, v.capacity,
+                   COUNT(DISTINCT g.game_number) AS game_count,
+                   IF(te.format IS NOT NULL, 'Team', 'Individual') AS event_type,
+                   te.team_size
+            FROM event e
+            JOIN venue v ON e.venue_id = v.venue_id
+            LEFT JOIN game g ON e.format = g.format AND e.gender_category = g.gender_category
+            LEFT JOIN team_event te ON e.format = te.format AND e.gender_category = te.gender_category
+            GROUP BY e.format, e.gender_category, e.sport, v.name, v.city, v.capacity, te.format, te.team_size
+            ORDER BY e.sport, e.format
+        """)
+    event_list = cursor.fetchall()
+
+    conn.close()
+    return render_template('events.html', events=event_list)
 
 @app.route("/venues")
 def venues():
-    return render_template('venues.html', title='Venues')
 
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT v.*, COUNT(e.format) as event_count
+        FROM venue v
+        LEFT JOIN event e ON v.venue_id = e.venue_id
+        GROUP BY v.venue_id
+        ORDER BY v.venue_id
+    """)
+
+    venue_list = cursor.fetchall()
+    conn.close()
+    return render_template('venues.html', venues=venue_list)
 
 @app.route("/search")
 def search():
@@ -297,6 +376,9 @@ def delete_athlete(reg_num):
     conn.close()
     return redirect(url_for('athletes'))
 
+@app.route("/events/<format>/<gender>")
+def event_detail(format, gender):
+    return render_template('event_detail.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
