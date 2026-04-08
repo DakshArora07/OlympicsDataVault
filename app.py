@@ -25,7 +25,7 @@ def index():
 
     cursor.execute("""
         SELECT COUNT(*) as count
-        FROM athelete
+        FROM athlete
     """)
     athlete_count = cursor.fetchone()['count']
 
@@ -77,7 +77,7 @@ def athletes():
 
     query = """
         SELECT a.*, c.name AS country_name, c.flag AS flag
-        FROM athelete a
+        FROM athlete a
         LEFT JOIN country c ON a.country_code = c.country_code
         WHERE 1=1
     """
@@ -110,7 +110,7 @@ def athletes():
     cursor.execute(query, tuple(params))
     athlete_list = cursor.fetchall()
 
-    cursor.execute("SELECT DISTINCT sport FROM athelete ORDER BY sport")
+    cursor.execute("SELECT DISTINCT sport FROM athlete ORDER BY sport")
     sports = [row['sport'] for row in cursor.fetchall()]
 
     conn.close()
@@ -130,7 +130,7 @@ def athlete_detail(reg_num):
 
     cursor.execute("""
         SELECT a.*, c.name AS country_name, c.flag AS flag
-        FROM athelete a
+        FROM athlete a
         LEFT JOIN country c ON a.country_code = c.country_code
         WHERE a.registration_number = %s
     """, (reg_num,))
@@ -143,14 +143,14 @@ def athlete_detail(reg_num):
 
     cursor.execute("""
         SELECT ap.*, g.date, e.sport, v.name as venue_name
-        FROM athelete_participation ap
+        FROM athlete_participation ap
         JOIN game g ON ap.format = g.format
             AND ap.gender_category = g.gender_category
             AND ap.game_number = g.game_number
         JOIN event e ON ap.format = e.format 
                AND ap.gender_category = e.gender_category
         JOIN venue v ON e.venue_id = v.venue_id
-        WHERE ap.athelete_registration_number = %s
+        WHERE ap.athlete_registration_number = %s
     """, (reg_num,))
     participations = cursor.fetchall()
 
@@ -246,7 +246,7 @@ def register_athlete():
 
         cursor.execute(
             """
-                INSERT INTO athelete 
+                INSERT INTO athlete 
                 (registration_number, first_name, middle_name, last_name, 
                  date_of_birth, gender, email, height, weight, country_code, sport)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -271,7 +271,7 @@ def edit_athlete(reg_num):
 
     cursor.execute("""
         SELECT *
-        FROM athelete
+        FROM athlete
         WHERE registration_number = %s
     """, (reg_num,))
     selected_athlete = cursor.fetchone()
@@ -321,7 +321,7 @@ def edit_athlete(reg_num):
         sport = request.form.get('sport')
 
         cursor.execute("""
-            UPDATE athelete
+            UPDATE athlete
             SET first_name = %s,
                 middle_name = %s,
                 last_name = %s,
@@ -355,20 +355,8 @@ def delete_athlete(reg_num):
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        DELETE
-        FROM athelete_participation
-        WHERE athelete_registration_number = %s
-    """, (reg_num,))
-
-    cursor.execute("""
-        DELETE
-        FROM member_of
-        WHERE athelete_registration_number = %s
-    """, (reg_num,))
-
-    cursor.execute("""
         DELETE 
-        FROM athelete
+        FROM athlete
         WHERE registration_number = %s
     """, (reg_num,))
 
