@@ -2,8 +2,13 @@
 {% block title %}Venues{% endblock %}
 
 {% block content %}
-<div class="page-title">Venues</div>
-<div class="page-subtitle">Stadiums and arenas hosting the Olympic Games.</div>
+<div class="flex-between mb-16">
+    <div>
+        <div class="page-title">Venues</div>
+        <div class="page-subtitle">Stadiums and arenas hosting the Olympic Games.</div>
+    </div>
+    <a href="{{ url_for('register_team') }}" class="btn btn-primary">+ Register Team</a>
+</div>
 
 <div class="mb-16">
     <input type="search" id="liveSearch" class="form-control"

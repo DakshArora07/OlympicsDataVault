@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block title %}Sports{% endblock %}
+{% block breadcrumb %}Sports{% endblock %}
+
+{% block content %}
+<div class="page-title">Sports</div>
+<div class="page-subtitle">All sports registered in the database — {{ sports|length }} sport(s).</div>
+
+<div class="mb-16">
+    <input type="search" id="liveSearch" class="form-control"
+           placeholder="Filter sports..." style="max-width:280px;">
+</div>
+
+<div class="card">
+    {% if sports %}
+    <table>
+        <thead>
+            <tr>
+                <th>Sport</th>
+                <th>Type</th>
+                <th>Events</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in sports %}
+            <tr data-searchable>
+                <td><strong>{{ s.name }}</strong></td>
+                <td>
+                    <span class="badge {% if s.type == 'Indoor' %}badge-blue{% else %}badge-green{% endif %}">
+                        {{ s.type }}
+                    </span>
+                </td>
+                <td>{{ s.event_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="card-body text-muted text-center">No sports found.</div>
+    {% endif %}
+</div>
+{% endblock %}

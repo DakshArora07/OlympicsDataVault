@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+{% block title %}Register Event{% endblock %}
+{% block breadcrumb %}Registration &rsaquo; Events &rsaquo; Register{% endblock %}
+
+{% block content %}
+<div class="breadcrumb-local">
+    <a href="{{ url_for('events') }}">Events</a> &rsaquo; Register Event
+</div>
+<div class="page-title">Register Event</div>
+<div class="page-subtitle">Add a new Olympic event to the database.</div>
+
+<div class="card" style="max-width:720px;">
+    <div class="card-header">
+        Event Information
+        <a href="{{ url_for('events') }}" class="btn btn-secondary btn-sm">&larr; Back</a>
+    </div>
+    <div class="card-body">
+
+        {% if error %}
+        <div class="flash-danger" style="margin-bottom:16px;">
+            <strong>Could not register event:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('register_event') }}">
+
+            <div class="form-section">Event Details</div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Format / Name *</label>
+                    <input type="text" name="format" class="form-control"
+                           placeholder="e.g. 100m Sprint" required maxlength="30"
+                           value="{{ form.get('format', '') if form else '' }}">
+                    <div class="form-hint">This is the event's primary key — must be unique per sport and gender.</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Gender Category *</label>
+                    <select name="gender_category" class="form-control" required>
+                        <option value="">-- Select --</option>
+                        <option value="Male"   {% if form and form.get('gender_category') == 'Male'   %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if form and form.get('gender_category') == 'Female' %}selected{% endif %}>Female</option>
+                        <option value="Mixed"  {% if form and form.get('gender_category') == 'Mixed'  %}selected{% endif %}>Mixed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Sport *</label>
+                    <select name="sport" class="form-control" required>
+                        <option value="">-- Select Sport --</option>
+                        {% for s in sports %}
+                        <option value="{{ s }}" {% if form and form.get('sport') == s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Venue *</label>
+                    <select name="venue_id" class="form-control" required>
+                        <option value="">-- Select Venue --</option>
+                        {% for v in venues %}
+                        <option value="{{ v.venue_id }}" {% if form and form.get('venue_id')|string == v.venue_id|string %}selected{% endif %}>
+                            {{ v.name }} &mdash; {{ v.city }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-section">Event Type</div>
+
+            <div class="form-group">
+                <label class="form-label">Type *</label>
+                <select name="event_type" class="form-control" id="eventTypeSelect"
+                        style="max-width:220px;" required onchange="toggleTeamSize()">
+                    <option value="">-- Select --</option>
+                    <option value="Individual" {% if form and form.get('event_type') == 'Individual' %}selected{% endif %}>Individual</option>
+                    <option value="Team"       {% if form and form.get('event_type') == 'Team'       %}selected{% endif %}>Team</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="teamSizeGroup" style="display:none;">
+                <label class="form-label">Team Size *</label>
+                <input type="number" name="team_size" class="form-control"
+                       placeholder="e.g. 11" style="max-width:200px;"
+                       value="{{ form.get('team_size', '') if form else '' }}">
+                <div class="form-hint">Number of players per team. Must be greater than 1.</div>
+            </div>
+
+            <div class="mt-16">
+                <button type="submit" class="btn btn-primary">Register Event</button>
+                <a href="{{ url_for('events') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+function toggleTeamSize() {
+    var type = document.getElementById('eventTypeSelect').value;
+    var group = document.getElementById('teamSizeGroup');
+    var input = group.querySelector('input');
+    if (type === 'Team') {
+        group.style.display = 'block';
+        input.required = true;
+    } else {
+        group.style.display = 'none';
+        input.required = false;
+        input.value = '';
+    }
+}
+
+toggleTeamSize();
+</script>
+{% endblock %}
+{% endblock %}

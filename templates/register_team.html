@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+{% block title %}Register Team{% endblock %}
+{% block breadcrumb %}Registration &rsaquo; Venues &rsaquo; Register Team{% endblock %}
+
+{% block content %}
+<div class="breadcrumb-local">
+    <a href="{{ url_for('venues') }}">Venues</a> &rsaquo; Register Team
+</div>
+<div class="page-title">Register Team</div>
+<div class="page-subtitle">Add a new team to the database.</div>
+
+<div class="card" style="max-width:720px;">
+    <div class="card-header">
+        Team Information
+        <a href="{{ url_for('venues') }}" class="btn btn-secondary btn-sm">&larr; Back</a>
+    </div>
+    <div class="card-body">
+
+        {% if error %}
+        <div class="flash-danger" style="margin-bottom:16px;">
+            <strong>Could not register team:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('register_team') }}">
+
+            <div class="form-section">Team Details</div>
+
+            <div class="form-group">
+                <label class="form-label">Team ID *</label>
+                <input type="number" name="team_id" class="form-control"
+                       placeholder="e.g. 201" required style="max-width:200px;"
+                       value="{{ form.get('team_id', '') if form else '' }}">
+                <div class="form-hint">Must be unique together with the country code.</div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Country *</label>
+                    <select name="country_code" class="form-control" required>
+                        <option value="">-- Select Country --</option>
+                        {% for c in countries %}
+                        <option value="{{ c.country_code }}"
+                                {% if form and form.get('country_code') == c.country_code %}selected{% endif %}>
+                            {{ c.name }} ({{ c.country_code }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Number of Players *</label>
+                    <input type="number" name="number_of_players" class="form-control"
+                           placeholder="e.g. 11" required
+                           value="{{ form.get('number_of_players', '') if form else '' }}">
+                    <div class="form-hint">Must be greater than 1 (SQL constraint).</div>
+                </div>
+            </div>
+
+            <div class="mt-16">
+                <button type="submit" class="btn btn-primary">Register Team</button>
+                <a href="{{ url_for('venues') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}
