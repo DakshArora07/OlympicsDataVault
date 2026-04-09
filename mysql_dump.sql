@@ -154,8 +154,7 @@ CREATE TABLE `member_of` (
   KEY `fk_member_of_country` (`country_code`),
   KEY `fk_member_of_team` (`team_id`),
   CONSTRAINT `fk_member_of_athlete` FOREIGN KEY (`athlete_registration_number`) REFERENCES `athlete` (`registration_number`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_member_of_country` FOREIGN KEY (`country_code`) REFERENCES `country` (`country_code`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_member_of_team` FOREIGN KEY (`team_id`) REFERENCES `team` (`team_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_member_of_team_full` FOREIGN KEY (`team_id`, `country_code`) REFERENCES `team` (`team_id`, `country_code`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -227,8 +226,7 @@ CREATE TABLE `team_participation` (
   `medal` enum('Gold','Silver','Bronze') DEFAULT NULL,
   PRIMARY KEY (`country_code`,`team_id`,`format`,`gender_category`,`game_number`),
   KEY `fk_team_participation_team` (`team_id`),
-  CONSTRAINT `fk_team_participation_country` FOREIGN KEY (`country_code`) REFERENCES `team` (`country_code`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_team_participation_team` FOREIGN KEY (`team_id`) REFERENCES `team` (`team_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_team_participation_team_full` FOREIGN KEY (`team_id`, `country_code`) REFERENCES `team` (`team_id`, `country_code`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_team_participation_game_full` FOREIGN KEY (`sport`, `format`, `gender_category`, `game_number`) REFERENCES `game` (`sport`, `format`, `gender_category`, `game_number`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
