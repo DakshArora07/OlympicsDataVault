@@ -1,18 +1,22 @@
 {% extends "layout.html" %}
 {% block title %}Sports{% endblock %}
-{% block breadcrumb %}Sports{% endblock %}
+{% block breadcrumb %}Registration &rsaquo; Sports{% endblock %}
 
 {% block content %}
-<div class="page-title">Sports</div>
-<div class="page-subtitle">All sports registered in the database — {{ sports|length }} sport(s).</div>
+<div class="flex-between mb-16">
+    <div>
+        <div class="page-title">Sports</div>
+        <div class="page-subtitle">{{ sports|length }} sport(s) registered</div>
+    </div>
+</div>
 
 <div class="mb-16">
     <input type="search" id="liveSearch" class="form-control"
            placeholder="Filter sports..." style="max-width:280px;">
 </div>
 
+{% if sports %}
 <div class="card">
-    {% if sports %}
     <table>
         <thead>
             <tr>
@@ -35,8 +39,9 @@
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
-    <div class="card-body text-muted text-center">No sports found.</div>
-    {% endif %}
 </div>
+{% else %}
+<div class="card card-body text-muted text-center">No sports registered yet.</div>
+{% endif %}
+
 {% endblock %}

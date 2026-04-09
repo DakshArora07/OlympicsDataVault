@@ -9,7 +9,7 @@
 <div class="page-title">Register Event</div>
 <div class="page-subtitle">Add a new Olympic event to the database.</div>
 
-<div class="card" style="max-width:720px;">
+<div class="card">
     <div class="card-header">
         Event Information
         <a href="{{ url_for('events') }}" class="btn btn-secondary btn-sm">&larr; Back</a>
@@ -40,7 +40,7 @@
                         <option value="">-- Select --</option>
                         <option value="Male"   {% if form and form.get('gender_category') == 'Male'   %}selected{% endif %}>Male</option>
                         <option value="Female" {% if form and form.get('gender_category') == 'Female' %}selected{% endif %}>Female</option>
-                        <option value="Mixed"  {% if form and form.get('gender_category') == 'Mixed'  %}selected{% endif %}>Mixed</option>
+                    
                     </select>
                 </div>
             </div>

@@ -1,19 +1,26 @@
 {% extends "layout.html" %}
 {% block title %}Register Athlete{% endblock %}
+{% block breadcrumb %}Registration &rsaquo; Athletes &rsaquo; Register{% endblock %}
 
 {% block content %}
-<div class="breadcrumb">
-    <a href="{{ url_for('athletes') }}">Athletes</a> &rsaquo; Register
+<div class="breadcrumb-local">
+    <a href="{{ url_for('athletes') }}">Athletes</a> &rsaquo; Register Athlete
 </div>
 <div class="page-title">Register Athlete</div>
-<div class="page-subtitle">Add a new athlete to the 2028 Olympic database.</div>
 
-<div class="card" style="max-width:720px;">
+<div class="card">
     <div class="card-header">
         Athlete Information
         <a href="{{ url_for('athletes') }}" class="btn btn-secondary btn-sm">&larr; Back</a>
     </div>
     <div class="card-body">
+
+        {% if error %}
+        <div class="flash-danger" style="margin-bottom:16px;">
+            <strong>Could not register athlete:</strong> {{ error }}
+        </div>
+        {% endif %}
+
         <form method="POST" action="{{ url_for('register_athlete') }}">
 
             <div class="form-section">Personal Details</div>

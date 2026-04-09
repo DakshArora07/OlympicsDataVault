@@ -1,72 +1,60 @@
 {% extends "layout.html" %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Events{% endblock %}
+{% block breadcrumb %}Registration &rsaquo; Events{% endblock %}
 
 {% block content %}
-<div class="page-title">OlympicsDataVault</div>
-
-
-<div class="stat-row">
-    <div class="stat-box">
-        <div class="stat-number">{{ athlete_count }}</div>
-        <div class="stat-label">Athletes</div>
+<div class="flex-between mb-16">
+    <div>
+        <div class="page-title">Events</div>
+        <div class="page-subtitle">{{ events|length }} event(s) registered</div>
     </div>
-    <div class="stat-box gold-border">
-        <div class="stat-number">{{ country_count }}</div>
-        <div class="stat-label">Countries</div>
-    </div>
-    <div class="stat-box red-border">
-        <div class="stat-number">{{ sport_count }}</div>
-        <div class="stat-label">Sports</div>
-    </div>
-    <div class="stat-box green-border">
-        <div class="stat-number">{{ venue_count }}</div>
-        <div class="stat-label">Venues</div>
-    </div>
+    <a href="{{ url_for('register_event') }}" class="btn btn-primary">+ Register Event</a>
 </div>
 
-
-
-    <div class="card">
-        <div class="card-header">
-            &#127942; Medal Tally
-            <a href="{{ url_for('medals') }}" class="btn btn-secondary btn-sm">Full table</a>
-        </div>
-        {% if medal_tally %}
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Country</th>
-                    <th>&#127948;</th>
-                    <th>&#127949;</th>
-                    <th>&#127950;</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in medal_tally %}
-                <tr>
-                    <td class="text-muted text-small">{{ loop.index }}</td>
-                    <td>
-                        {% if row.flag %}
-                        <img src="{{ row.flag }}" alt="" width="22" height="15"
-                             style="vertical-align:middle;margin-right:6px;border-radius:2px;"
-                             onerror="this.style.display='none'">
-                        {% endif %}
-                        <strong>{{ row.country }}</strong>
-                    </td>
-                    <td class="gold-text">{{ row.gold or 0 }}</td>
-                    <td class="silver-text">{{ row.silver or 0 }}</td>
-                    <td class="bronze-text">{{ row.bronze or 0 }}</td>
-                    <td><strong>{{ row.total or 0 }}</strong></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div class="card-body text-muted">No medals awarded yet.</div>
-        {% endif %}
-  
-
+<div class="mb-16">
+    <input type="search" id="liveSearch" class="form-control"
+           placeholder="Search events..." style="max-width:280px;">
 </div>
+
+{% if events %}
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Format</th>
+                <th>Gender</th>
+                <th>Sport</th>
+                <th>Venue</th>
+                <th>City</th>
+                <th>Type</th>
+                <th>Games</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in events %}
+            <tr data-searchable>
+                <td><strong><a href="{{ url_for('event_detail', format=e.format, gender=e.gender_category) }}">{{ e.format }}</a></strong></td>
+                <td>
+                    <span class="badge {% if e.gender_category == 'Male' %}badge-blue{% elif e.gender_category == 'Female' %}badge-red{% else %}badge-green{% endif %}">
+                        {{ e.gender_category }}
+                    </span>
+                </td>
+                <td>{{ e.sport }}</td>
+                <td>{{ e.venue_name }}</td>
+                <td class="text-muted text-small">{{ e.city }}</td>
+                <td>
+                    <span class="badge {% if e.event_type == 'Team' %}badge-green{% else %}badge-blue{% endif %}">
+                        {{ e.event_type }}
+                    </span>
+                </td>
+                <td>{{ e.game_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card card-body text-muted text-center">No events found.</div>
+{% endif %}
+
 {% endblock %}

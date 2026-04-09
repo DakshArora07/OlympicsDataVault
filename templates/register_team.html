@@ -1,18 +1,18 @@
 {% extends "layout.html" %}
 {% block title %}Register Team{% endblock %}
-{% block breadcrumb %}Registration &rsaquo; Venues &rsaquo; Register Team{% endblock %}
+{% block breadcrumb %}Registration &rsaquo; Teams &rsaquo; Register Team{% endblock %}
 
 {% block content %}
 <div class="breadcrumb-local">
-    <a href="{{ url_for('venues') }}">Venues</a> &rsaquo; Register Team
+    <a href="{{ url_for('teams') }}">Teams</a> &rsaquo; Register Team
 </div>
 <div class="page-title">Register Team</div>
 <div class="page-subtitle">Add a new team to the database.</div>
 
-<div class="card" style="max-width:720px;">
+<div class="card">
     <div class="card-header">
         Team Information
-        <a href="{{ url_for('venues') }}" class="btn btn-secondary btn-sm">&larr; Back</a>
+        <a href="{{ url_for('teams') }}" class="btn btn-secondary btn-sm">&larr; Back</a>
     </div>
     <div class="card-body">
 
@@ -22,7 +22,7 @@
         </div>
         {% endif %}
 
-        <form method="POST" action="{{ url_for('register_team') }}">
+        <form method="POST" action="{{ url_for('register_team') }}" id="teamForm">
 
             <div class="form-section">Team Details</div>
 
@@ -37,7 +37,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Country *</label>
-                    <select name="country_code" class="form-control" required>
+                    <select name="country_code" class="form-control" id="countrySelect" required>
                         <option value="">-- Select Country --</option>
                         {% for c in countries %}
                         <option value="{{ c.country_code }}"
@@ -50,18 +50,168 @@
                 <div class="form-group">
                     <label class="form-label">Number of Players *</label>
                     <input type="number" name="number_of_players" class="form-control"
-                           placeholder="e.g. 11" required
+                           id="numPlayersInput" placeholder="e.g. 11" required
                            value="{{ form.get('number_of_players', '') if form else '' }}">
-                    <div class="form-hint">Must be greater than 1 (SQL constraint).</div>
+                    <div class="form-hint">Must match the number of athletes you select below.</div>
+                </div>
+            </div>
+
+            <div class="form-section">Select Athletes</div>
+
+            <div id="athleteSection">
+                <div id="athletePlaceholder" class="text-muted text-small" style="margin-bottom:12px;">
+                    Select a country above to load available athletes.
+                </div>
+
+                <div id="athleteSearchWrap" style="display:none; margin-bottom:10px;">
+                    <input type="search" id="athleteSearch" class="form-control"
+                           placeholder="Search athletes by name or sport..."
+                           style="max-width:340px;">
+                </div>
+
+                <div id="selectionCounter" style="display:none; margin-bottom:10px;">
+                    <span class="badge badge-blue" id="counterBadge">0 selected</span>
+                </div>
+
+                <div id="athleteListWrap" style="display:none;">
+                    <div id="athleteList"
+                         style="border:1px solid #e2e8f0; border-radius:6px; max-height:320px; overflow-y:auto; background:#f8fafc;">
+                    </div>
+                </div>
+
+                <div id="noAthletesMsg" style="display:none;" class="text-muted text-small">
+                    No athletes found for this country.
+                </div>
+
+                <div id="playerMismatchError"
+                     style="display:none; margin-top:10px;"
+                     class="flash-danger">
+                    The number of selected athletes must match the number of players entered above.
                 </div>
             </div>
 
             <div class="mt-16">
-                <button type="submit" class="btn btn-primary">Register Team</button>
-                <a href="{{ url_for('venues') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary" id="submitBtn">Register Team</button>
+                <a href="{{ url_for('teams') }}" class="btn btn-secondary">Cancel</a>
             </div>
 
         </form>
     </div>
 </div>
+
+{% block scripts %}
+<script>
+const countrySelect   = document.getElementById('countrySelect');
+const athleteSearch   = document.getElementById('athleteSearch');
+const athleteList     = document.getElementById('athleteList');
+const athleteListWrap = document.getElementById('athleteListWrap');
+const athleteSearchWrap = document.getElementById('athleteSearchWrap');
+const selectionCounter  = document.getElementById('selectionCounter');
+const counterBadge    = document.getElementById('counterBadge');
+const placeholder     = document.getElementById('athletePlaceholder');
+const noAthletesMsg   = document.getElementById('noAthletesMsg');
+const mismatchError   = document.getElementById('playerMismatchError');
+const numPlayersInput = document.getElementById('numPlayersInput');
+const teamForm        = document.getElementById('teamForm');
+
+let allAthletes = [];
+
+function renderAthletes(athletes) {
+    athleteList.innerHTML = '';
+    if (athletes.length === 0) {
+        athleteList.innerHTML = '<div style="padding:12px 16px;" class="text-muted text-small">No athletes match your search.</div>';
+        return;
+    }
+    athletes.forEach(a => {
+        const row = document.createElement('label');
+        row.style.cssText = 'display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid #e2e8f0; cursor:pointer;';
+        row.innerHTML = `
+            <input type="checkbox" name="athlete_ids" value="${a.registration_number}"
+                   style="width:15px;height:15px;cursor:pointer;" onchange="updateCounter()">
+            <div>
+                <div style="font-size:13px;font-weight:500;">${a.first_name} ${a.last_name}</div>
+                <div class="text-muted text-small">#${a.registration_number} &mdash; ${a.sport}</div>
+            </div>
+        `;
+        row.querySelector('input').addEventListener('change', updateCounter);
+        athleteList.appendChild(row);
+    });
+}
+
+function updateCounter() {
+    const checked = document.querySelectorAll('input[name="athlete_ids"]:checked').length;
+    counterBadge.textContent = checked + ' selected';
+    counterBadge.className = checked > 0 ? 'badge badge-green' : 'badge badge-blue';
+    mismatchError.style.display = 'none';
+}
+
+function filterAthletes() {
+    const q = athleteSearch.value.toLowerCase();
+    const filtered = allAthletes.filter(a =>
+        (a.first_name + ' ' + a.last_name).toLowerCase().includes(q) ||
+        a.sport.toLowerCase().includes(q)
+    );
+    renderAthletes(filtered);
+}
+
+countrySelect.addEventListener('change', function () {
+    const code = this.value;
+    athleteList.innerHTML = '';
+    mismatchError.style.display = 'none';
+
+    if (!code) {
+        placeholder.style.display = 'block';
+        athleteSearchWrap.style.display = 'none';
+        athleteListWrap.style.display = 'none';
+        selectionCounter.style.display = 'none';
+        noAthletesMsg.style.display = 'none';
+        allAthletes = [];
+        return;
+    }
+
+    placeholder.textContent = 'Loading athletes...';
+    placeholder.style.display = 'block';
+    athleteSearchWrap.style.display = 'none';
+    athleteListWrap.style.display = 'none';
+    selectionCounter.style.display = 'none';
+    noAthletesMsg.style.display = 'none';
+
+    fetch(`/api/athletes_by_country/${code}`)
+        .then(r => r.json())
+        .then(data => {
+            allAthletes = data;
+            placeholder.style.display = 'none';
+            athleteSearch.value = '';
+
+            if (data.length === 0) {
+                noAthletesMsg.style.display = 'block';
+                return;
+            }
+
+            athleteSearchWrap.style.display = 'block';
+            selectionCounter.style.display = 'block';
+            athleteListWrap.style.display = 'block';
+            renderAthletes(data);
+            updateCounter();
+        })
+        .catch(() => {
+            placeholder.textContent = 'Failed to load athletes. Please try again.';
+            placeholder.style.display = 'block';
+        });
+});
+
+athleteSearch.addEventListener('input', filterAthletes);
+
+teamForm.addEventListener('submit', function (e) {
+    const checked = document.querySelectorAll('input[name="athlete_ids"]:checked').length;
+    const numPlayers = parseInt(numPlayersInput.value, 10);
+
+    if (!isNaN(numPlayers) && checked !== numPlayers) {
+        e.preventDefault();
+        mismatchError.style.display = 'block';
+        mismatchError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+});
+</script>
+{% endblock %}
 {% endblock %}

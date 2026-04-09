@@ -10,7 +10,7 @@
 <div class="page-title">Edit Athlete</div>
 <div class="page-subtitle">Updating record for {{ athlete.first_name }} {{ athlete.last_name }} (#{{ athlete.registration_number }})</div>
 
-<div class="card" style="max-width:720px;">
+<div class="card">
     <div class="card-header">
         Update Information
         <a href="{{ url_for('athlete_detail', reg_num=athlete.registration_number) }}"
