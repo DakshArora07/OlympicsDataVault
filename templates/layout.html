@@ -10,7 +10,6 @@
 
 <div class="app-shell">
 
-
     <aside class="sidebar">
 
         <div class="sb-logo">
@@ -22,16 +21,45 @@
                 <circle cx="48" cy="30" r="9" stroke="#00A651" stroke-width="2.8" fill="none"/>
             </svg>
             <div class="sb-name">OlympicsDataVault</div>
-            <div class="sb-sub">Competition Management</div>
+            <div class="sb-sub">Event Management</div>
         </div>
 
         <nav class="sb-nav">
+
             <div class="sb-section">
                 <div class="sb-section-label">Overview</div>
                 <a class="sb-link {% if request.endpoint == 'index' %}active{% endif %}"
                    href="{{ url_for('index') }}">
                     <span class="sb-dot"></span>Dashboard
                 </a>
+            </div>
+
+            <div class="sb-section">
+                <div class="sb-section-label">Registration</div>
+                <a class="sb-link {% if 'athlete' in (request.endpoint or '') %}active{% endif %}"
+                   href="{{ url_for('athletes') }}">
+                    <span class="sb-dot"></span>Athletes
+                </a>
+                <a class="sb-link {% if 'event' in (request.endpoint or '') %}active{% endif %}"
+                   href="{{ url_for('events') }}">
+                    <span class="sb-dot"></span>Events
+                </a>
+                <a class="sb-link {% if request.endpoint == 'venues' %}active{% endif %}"
+                    href="{{ url_for('venues') }}">
+                     <span class="sb-dot"></span>Venues
+                </a>
+                <a class="sb-link {% if 'team' in (request.endpoint or '') %}active{% endif %}"
+                    href="{{ url_for('teams') }}">
+                     <span class="sb-dot"></span>Teams
+                </a>
+                <a class="sb-link {% if request.endpoint == 'sports' %}active{% endif %}"
+                   href="{{ url_for('sports') }}">
+                    <span class="sb-dot"></span>Sports
+                </a>
+            </div>
+
+            <div class="sb-section">
+                <div class="sb-section-label">Results</div>
                 <a class="sb-link {% if request.endpoint == 'medals' %}active{% endif %}"
                    href="{{ url_for('medals') }}">
                     <span class="sb-dot"></span>Medal Tally
@@ -42,43 +70,15 @@
                 </a>
             </div>
 
-            <div class="sb-section">
-                <div class="sb-section-label">Registration</div>
-                <a class="sb-link {% if 'athlete' in (request.endpoint or '') %}active{% endif %}"
-                   href="{{ url_for('athletes') }}">
-                    <span class="sb-dot"></span>Athletes
-                </a>
-            </div>
-
-            <div class="sb-section">
-                <div class="sb-section-label">Competition</div>
-                <a class="sb-link {% if 'event' in (request.endpoint or '') %}active{% endif %}"
-                   href="{{ url_for('events') }}">
-                    <span class="sb-dot"></span>Events
-                </a>
-                <a class="sb-link {% if request.endpoint == 'venues' %}active{% endif %}"
-                   href="{{ url_for('venues') }}">
-                    <span class="sb-dot"></span>Venues
-                </a>
-            </div>
         </nav>
 
     </aside>
-
 
     <div class="main-area">
 
         <div class="topbar">
             <div class="breadcrumb">
                 {% block breadcrumb %}Dashboard{% endblock %}
-            </div>
-            <div class="topbar-right">
-                <form class="topbar-search" action="{{ url_for('search') }}" method="GET">
-                    <input type="search" name="q" placeholder="Search..."
-                           value="{{ request.args.get('q', '') }}">
-                    <button type="submit">Go</button>
-                </form>
-                <div class="avatar">AD</div>
             </div>
         </div>
 

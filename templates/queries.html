@@ -1,130 +1,141 @@
 {% extends "layout.html" %}
-{% block title %}Medal Tally{% endblock %}
+{% block title %}Query Lab{% endblock %}
+{% block breadcrumb %}Results &rsaquo; Query Lab{% endblock %}
 
 {% block content %}
-<div class="page-title">Medal Tally</div>
-<div class="page-subtitle">Current standings across all individual events.</div>
+<div class="page-title">Query Lab</div>
+<div class="page-subtitle">Division, nested subqueries, and aggregation with GROUP BY.</div>
 
-<div data-tabs>
-    <div class="tab-bar">
-        <button class="tab-btn active" data-tab="countries">By Country</button>
-        <button class="tab-btn" data-tab="sports">By Sport</button>
-        <button class="tab-btn" data-tab="recent">Recent Gold</button>
+<!-- Q1: Division -->
+<div class="card mb-16">
+    <div class="card-header">
+        <span class="badge badge-blue">Division Query</span>
+        &nbsp; Athletes who competed in ALL Men's 100m games
     </div>
-
-
-    <div data-panel="countries">
-        <div class="mb-16">
-            <input type="search" id="liveSearch" class="form-control"
-                   placeholder="Search country..." style="max-width:260px;">
-        </div>
-        {% if individual_tally %}
-        <div class="card">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Country</th>
-                        <th>Continent</th>
-                        <th>&#127948; Gold</th>
-                        <th>&#127949; Silver</th>
-                        <th>&#127950; Bronze</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in individual_tally %}
-                    <tr data-searchable>
-                        <td class="text-muted text-small">{{ loop.index }}</td>
-                        <td>
-                            {% if row.flag %}
-                            <img src="{{ row.flag }}" alt="" width="22" height="15"
-                                 style="vertical-align:middle;margin-right:6px;border-radius:2px;"
-                                 onerror="this.style.display='none'">
-                            {% endif %}
-                            <strong>{{ row.country }}</strong>
-                        </td>
-                        <td class="text-small text-muted">{{ row.continent }}</td>
-                        <td class="gold-text">{{ row.gold or 0 }}</td>
-                        <td class="silver-text">{{ row.silver or 0 }}</td>
-                        <td class="bronze-text">{{ row.bronze or 0 }}</td>
-                        <td><strong>{{ row.total or 0 }}</strong></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="card-body">
+        <p class="text-muted text-small mb-8">
+            Uses double-nested NOT EXISTS — finds athletes for whom no game exists that they have NOT participated in.
+        </p>
+        <div class="sql-code">SELECT a.registration_number, a.first_name, a.last_name
+FROM athlete a
+WHERE NOT EXISTS (
+    SELECT g.game_number FROM game g
+    WHERE g.format = '100m' AND g.gender_category = 'Male'
+    AND NOT EXISTS (
+        SELECT 1 FROM athlete_participation ap
+        WHERE ap.athlete_registration_number = a.registration_number
+          AND ap.format = g.format
+          AND ap.gender_category = g.gender_category
+          AND ap.game_number = g.game_number
+    )
+)
+AND a.sport = '100m Sprint'</div>
+        {% if division_result %}
+        <table>
+            <thead><tr><th>#</th><th>Name</th><th>Country</th></tr></thead>
+            <tbody>
+                {% for r in division_result %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td><strong>{{ r.first_name }} {{ r.last_name }}</strong></td>
+                    <td>{{ r.country }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         {% else %}
-        <p class="text-muted">No medals awarded yet.</p>
+        <p class="text-muted text-small">No athletes have competed in all games yet.</p>
         {% endif %}
     </div>
+</div>
 
-
-    <div data-panel="sports" style="display:none;">
-        {% if sport_medals %}
-        <div class="card">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Sport</th>
-                        <th>&#127948; Gold</th>
-                        <th>&#127949; Silver</th>
-                        <th>&#127950; Bronze</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for s in sport_medals %}
-                    <tr>
-                        <td><strong>{{ s.sport }}</strong></td>
-                        <td class="gold-text">{{ s.gold or 0 }}</td>
-                        <td class="silver-text">{{ s.silver or 0 }}</td>
-                        <td class="bronze-text">{{ s.bronze or 0 }}</td>
-                        <td><strong>{{ (s.gold or 0) + (s.silver or 0) + (s.bronze or 0) }}</strong></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<!-- Q2: Nested subquery -->
+<div class="card mb-16">
+    <div class="card-header">
+        <span class="badge badge-green">Nested Subquery</span>
+        &nbsp; Athletes scoring above their event's average
+    </div>
+    <div class="card-body">
+        <p class="text-muted text-small mb-8">
+            Correlated subquery: for each row, computes the average score for that (format, gender_category) group and compares.
+        </p>
+        <div class="sql-code">SELECT a.first_name, a.last_name, ap.format, ap.score,
+       (SELECT ROUND(AVG(ap2.score), 2) FROM athlete_participation ap2
+        WHERE ap2.format = ap.format AND ap2.gender_category = ap.gender_category) AS event_avg
+FROM athlete a
+JOIN athlete_participation ap ON a.registration_number = ap.athlete_registration_number
+WHERE ap.score > (
+    SELECT AVG(ap2.score) FROM athlete_participation ap2
+    WHERE ap2.format = ap.format AND ap2.gender_category = ap.gender_category
+)</div>
+        {% if above_avg %}
+        <table>
+            <thead>
+                <tr><th>Athlete</th><th>Event</th><th>Score</th><th>Event Avg</th><th>Above Avg By</th></tr>
+            </thead>
+            <tbody>
+                {% for r in above_avg %}
+                <tr>
+                    <td><strong>{{ r.first_name }} {{ r.last_name }}</strong></td>
+                    <td>{{ r.format }} &middot; {{ r.gender_category }}</td>
+                    <td class="gold-text"><strong>{{ "%.2f"|format(r.score) }}</strong></td>
+                    <td class="text-muted">{{ r.event_avg }}</td>
+                    <td style="color:green;">+{{ "%.2f"|format(r.score - r.event_avg) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         {% else %}
-        <p class="text-muted">No sport medal data yet.</p>
+        <p class="text-muted text-small">No results yet.</p>
         {% endif %}
     </div>
+</div>
 
-
-    <div data-panel="recent" style="display:none;">
-        {% if gold_medalists %}
-        <div class="card">
-            <table>
-                <thead>
-                    <tr><th>Athlete</th><th>Country</th><th>Sport</th><th>Event</th><th>Date</th></tr>
-                </thead>
-                <tbody>
-                    {% for g in gold_medalists %}
-                    <tr>
-                        <td>&#127948; <strong>{{ g.first_name }} {{ g.last_name }}</strong></td>
-                        <td>
-                            {% if g.flag %}
-                            <img src="{{ g.flag }}" alt="" width="20" height="14"
-                                 style="vertical-align:middle;margin-right:4px;border-radius:2px;"
-                                 onerror="this.style.display='none'">
-                            {% endif %}
-                            {{ g.country }}
-                        </td>
-                        <td class="text-small">{{ g.sport }}</td>
-                        <td>
-                            <a href="{{ url_for('event_detail', format=g.format, gender=g.gender_category) }}" class="text-small">
-                                {{ g.format }} &middot; {{ g.gender_category }}
-                            </a>
-                        </td>
-                        <td class="text-small text-muted">{{ g.date }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<!-- Q3: Aggregation + GROUP BY -->
+<div class="card mb-16">
+    <div class="card-header">
+        <span class="badge badge-gold">Aggregation + GROUP BY</span>
+        &nbsp; Medal count grouped by sport
+    </div>
+    <div class="card-body">
+        <p class="text-muted text-small mb-8">
+            Uses SUM() with boolean expressions and COUNT(), grouped by sport.
+        </p>
+        <div class="sql-code">SELECT e.sport,
+       SUM(ap.medal = 'Gold')   AS gold,
+       SUM(ap.medal = 'Silver') AS silver,
+       SUM(ap.medal = 'Bronze') AS bronze,
+       COUNT(ap.medal)          AS total
+FROM athlete_participation ap
+JOIN event e ON ap.format = e.format AND ap.gender_category = e.gender_category
+WHERE ap.medal IS NOT NULL
+GROUP BY e.sport
+ORDER BY total DESC</div>
+        {% if medals_by_sport %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Sport</th>
+                    <th>&#127948; Gold</th>
+                    <th>&#127949; Silver</th>
+                    <th>&#127950; Bronze</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in medals_by_sport %}
+                <tr>
+                    <td><strong>{{ r.sport }}</strong></td>
+                    <td class="gold-text">{{ r.gold or 0 }}</td>
+                    <td class="silver-text">{{ r.silver or 0 }}</td>
+                    <td class="bronze-text">{{ r.bronze or 0 }}</td>
+                    <td><strong>{{ r.total }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         {% else %}
-        <p class="text-muted">No gold medals awarded yet.</p>
+        <p class="text-muted text-small">No medal data yet.</p>
         {% endif %}
     </div>
 </div>

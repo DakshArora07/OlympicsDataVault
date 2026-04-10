@@ -1,15 +1,22 @@
 {% extends "layout.html" %}
 {% block title %}Venues{% endblock %}
+{% block breadcrumb %}Registration &rsaquo; Venues{% endblock %}
 
 {% block content %}
-<div class="page-title">Venues</div>
-<div class="page-subtitle">Stadiums and arenas hosting the Olympic Games.</div>
+<div class="flex-between mb-16">
+    <div>
+        <div class="page-title">Venues</div>
+        <div class="page-subtitle">{{ venues|length }} venue(s) registered</div>
+    </div>
+    <a href="{{ url_for('register_venue') }}" class="btn btn-primary">+ Register Venue</a>
+</div>
 
 <div class="mb-16">
     <input type="search" id="liveSearch" class="form-control"
            placeholder="Search venues..." style="max-width:280px;">
 </div>
 
+{% if venues %}
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
     {% for v in venues %}
     <div class="card" data-searchable>
@@ -35,9 +42,10 @@
             <div class="text-muted text-small mt-8">{{ "{:,}".format(v.capacity) }} seats</div>
         </div>
     </div>
-    {% else %}
-    <p class="text-muted">No venues found.</p>
     {% endfor %}
 </div>
+{% else %}
+<div class="card card-body text-muted text-center">No venues registered yet.</div>
+{% endif %}
 
 {% endblock %}

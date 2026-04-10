@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Athletes{% endblock %}
+{% block breadcrumb %}Registration &rsaquo; Athletes{% endblock %}
+
 
 {% block content %}
 <div class="flex-between mb-16">
@@ -96,10 +98,9 @@
         </tbody>
     </table>
 </div>
+
 {% else %}
-<div class="card card-body text-muted text-center">
-    No athletes found. <a href="{{ url_for('register_athlete') }}">Register one?</a>
-</div>
+<div class="card card-body text-muted text-center">No athletes found.</div>
 {% endif %}
 
 {% endblock %}

@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% block title %}Sports{% endblock %}
+{% block breadcrumb %}Registration &rsaquo; Sports{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-16">
+    <div>
+        <div class="page-title">Sports</div>
+        <div class="page-subtitle">{{ sports|length }} sport(s) registered</div>
+    </div>
+</div>
+
+<div class="mb-16">
+    <input type="search" id="liveSearch" class="form-control"
+           placeholder="Filter sports..." style="max-width:280px;">
+</div>
+
+{% if sports %}
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Sport</th>
+                <th>Type</th>
+                <th>Events</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in sports %}
+            <tr data-searchable>
+                <td><strong>{{ s.name }}</strong></td>
+                <td>
+                    <span class="badge {% if s.type == 'Indoor' %}badge-blue{% else %}badge-green{% endif %}">
+                        {{ s.type }}
+                    </span>
+                </td>
+                <td>{{ s.event_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card card-body text-muted text-center">No sports registered yet.</div>
+{% endif %}
+
+{% endblock %}

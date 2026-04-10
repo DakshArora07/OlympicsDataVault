@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block title %}Medal Tally{% endblock %}
+{% block breadcrumb %}Results &rsaquo; Medal Tally{% endblock %}
 
 {% block content %}
 <div class="page-title">Medal Tally</div>
@@ -12,8 +13,7 @@
         <button class="tab-btn" data-tab="recent">Recent Gold</button>
     </div>
 
-
-    <div data-panel="countries">
+    <div class="tab-panel" data-panel="countries">
         <div class="mb-16">
             <input type="search" id="liveSearch" class="form-control"
                    placeholder="Search country..." style="max-width:260px;">
@@ -59,8 +59,7 @@
         {% endif %}
     </div>
 
-
-    <div data-panel="sports" style="display:none;">
+    <div class="tab-panel" data-panel="sports" style="display:none;">
         {% if sport_medals %}
         <div class="card">
             <table>
@@ -91,13 +90,18 @@
         {% endif %}
     </div>
 
-
-    <div data-panel="recent" style="display:none;">
+    <div class="tab-panel" data-panel="recent" style="display:none;">
         {% if gold_medalists %}
         <div class="card">
             <table>
                 <thead>
-                    <tr><th>Athlete</th><th>Country</th><th>Sport</th><th>Event</th><th>Date</th></tr>
+                    <tr>
+                        <th>Athlete</th>
+                        <th>Country</th>
+                        <th>Sport</th>
+                        <th>Event</th>
+                        <th>Date</th>
+                    </tr>
                 </thead>
                 <tbody>
                     {% for g in gold_medalists %}
