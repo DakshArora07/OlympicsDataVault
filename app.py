@@ -368,5 +368,134 @@ def delete_athlete(reg_num):
 def event_detail(format, gender):
     return render_template('event_detail.html')
 
+@app.route("/teams")
+def teams():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT t.*, c.name as country_name, c.flag as country_flag
+        FROM team t
+        JOIN country c ON t.country_code = c.country_code
+        GROUP BY t.team_id, t.country_code, t.number_of_players, country_flag, country_name
+        ORDER BY t.team_id
+    """)
+
+    team_list = cursor.fetchall()
+    return render_template('teams.html', teams=team_list)
+@app.route("/register_team")
+def register_team():
+    return render_template('register_team.html')
+
+@app.route("/register_venue", methods=["GET", "POST"])
+def register_venue():
+
+    if request.method == "POST":
+        venue_id = request.form.get("venue_id")
+        name = request.form.get("name")
+        city = request.form.get("city")
+        country = request.form.get("country")
+        capacity = request.form.get("capacity")
+
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            INSERT INTO venue (venue_id, name, city, country, capacity)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (venue_id, name, city, country, capacity))
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for("venues"))
+
+    return render_template("register_venue.html")
+
+@app.route("/sports")
+def sports():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT s.*, COUNT(e.sport) AS event_count
+        FROM sport s
+        LEFT JOIN event e ON e.sport = s.name
+        GROUP BY s.name, s.type
+        ORDER BY s.name
+    """)
+    sport_list = cursor.fetchall()
+
+    conn.close()
+    return render_template('sports.html', sports=sport_list)
+
+@app.route("/register_sport", methods=["GET", "POST"])
+def register_sport():
+    if request.method == "POST":
+        name = request.form.get("name")
+        sport_type = request.form.get("type")
+
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            INSERT INTO sport (name, type)
+            VALUES (%s, %s)
+        """, (name, sport_type))
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for("sports"))
+
+    return render_template("register_sport.html")
+
+@app.route("/register_event", methods=["GET", "POST"])
+def register_event():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT name
+        FROM sport
+        ORDER BY name
+    """)
+    sports_list = [row['name'] for row in cursor.fetchall()]
+
+    cursor.execute("""
+        SELECT name
+        FROM venue
+        ORDER BY name
+    """)
+    venue_list = cursor.fetchall()
+
+    if request.method == "POST":
+        sport = request.form.get("sport")
+        format = request.form.get("format")
+        gender_category = request.form.get("gender_category")
+        venue_id = request.form.get("venue_id")
+        event_type = request.form.get("event_type")
+        team_size = request.form.get("team_size") or None
+
+        cursor.execute("""
+            INSERT INTO event (sport, format, gender_category, venue_id)
+            VALUES (%s, %s, %s, %d)     
+        """, (sport, format, gender_category, venue_id))
+
+        if event_type == 'Individual':
+            cursor.execute("""
+                INSERT INTO individual_event (sport, format, gender_category)
+                VALUES (%s, %s, %s)
+            """, (sport, format, gender_category))
+        else:
+            cursor.execute("""
+                INSERT INTO team_event (sport, format, gender_category, team_size)
+                VALUES (%s, %s, %s, %d)
+            """, (sport, format, gender_category, team_size))
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for("events"))
+
+    return render_template("register_event.html", sports=sports_list, venues=venue_list)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
