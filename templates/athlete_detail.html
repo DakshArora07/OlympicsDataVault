@@ -76,13 +76,13 @@
                 {% if total > 0 %}
                 <table style="width:100%;text-align:center;">
                     <tr>
-                        <td><div style="font-size:1.8rem;">&#127948;</div>
+                        <td><div style="font-size:1.8rem;">&#129351;</div>
                             <div class="gold-text" style="font-size:1.6rem;font-weight:bold;">{{ medals.get('Gold',0) }}</div>
                             <div class="text-muted text-small">Gold</div></td>
-                        <td><div style="font-size:1.8rem;">&#127949;</div>
+                        <td><div style="font-size:1.8rem;">&#129352;</div>
                             <div class="silver-text" style="font-size:1.6rem;font-weight:bold;">{{ medals.get('Silver',0) }}</div>
                             <div class="text-muted text-small">Silver</div></td>
-                        <td><div style="font-size:1.8rem;">&#127950;</div>
+                        <td><div style="font-size:1.8rem;">&#129353;</div>
                             <div class="bronze-text" style="font-size:1.6rem;font-weight:bold;">{{ medals.get('Bronze',0) }}</div>
                             <div class="text-muted text-small">Bronze</div></td>
                     </tr>
@@ -129,11 +129,11 @@
                         <td><strong>{{ p.score }}</strong></td>
                         <td>
                             {% if p.medal == 'Gold' %}
-                                <span class="badge badge-gold">&#127948; Gold</span>
+                                <span class="badge badge-gold">&#129351; Gold</span>
                             {% elif p.medal == 'Silver' %}
-                                <span class="badge badge-gray">&#127949; Silver</span>
+                                <span class="badge badge-gray">&#129352; Silver</span>
                             {% elif p.medal == 'Bronze' %}
-                                <span class="badge" style="background:#f5e8d8;color:#7a3a00;">&#127950; Bronze</span>
+                                <span class="badge" style="background:#f5e8d8;color:#7a3a00;">&#129353; Bronze</span>
                             {% else %}
                                 <span class="text-muted">—</span>
                             {% endif %}

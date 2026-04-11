@@ -32,6 +32,14 @@
                    href="{{ url_for('index') }}">
                     <span class="sb-dot"></span>Dashboard
                 </a>
+                <a class="sb-link {% if request.endpoint == 'sports' %}active{% endif %}"
+                   href="{{ url_for('sports') }}">
+                    <span class="sb-dot"></span>Sports
+                </a>
+                <a class="sb-link {% if request.endpoint == 'countries' %}active{% endif %}"
+                    href="{{ url_for('countries') }}">
+                     <span class="sb-dot"></span>Countries
+                </a>
             </div>
 
             <div class="sb-section">
@@ -51,10 +59,6 @@
                 <a class="sb-link {% if 'team' in (request.endpoint or '') %}active{% endif %}"
                     href="{{ url_for('teams') }}">
                      <span class="sb-dot"></span>Teams
-                </a>
-                <a class="sb-link {% if request.endpoint == 'sports' %}active{% endif %}"
-                   href="{{ url_for('sports') }}">
-                    <span class="sb-dot"></span>Sports
                 </a>
             </div>
 

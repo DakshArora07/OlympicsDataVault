@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block title %}Countries{% endblock %}
+{% block breadcrumb %}Overview &rsaquo; Countries{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-16">
+    <div>
+        <div class="page-title">Countries</div>
+        <div class="page-subtitle">{{ countries|length }} country(s) registered</div>
+    </div>
+</div>
+
+<div class="mb-16">
+    <input type="search" id="liveSearch" class="form-control"
+           placeholder="Filter countries..." style="max-width:280px;">
+</div>
+
+{% if countries %}
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Country</th>
+                <th>Athletes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in countries %}
+            <tr data-searchable>
+                <td>
+                    <strong>{{ c.name }}</strong>
+                    {% if c.flag %}
+                        <span style="margin-left:8px;">{{ c.flag }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ c.athlete_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card card-body text-muted text-center">No countries registered yet.</div>
+{% endif %}
+
+{% endblock %}
