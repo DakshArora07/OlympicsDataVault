@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block title %}Edit {{ event.format }} {{ event.gender_category }}{% endblock %}
+{% block breadcrumb %}Registration &rsaquo; Events &rsaquo; {{ event.format }} &rsaquo; Edit{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-16">
+    <div>
+        <div class="page-title">Edit Event</div>
+        <div class="page-subtitle">{{ event.format }} &mdash; {{ event.gender_category }} &mdash; {{ event.sport }}</div>
+    </div>
+    <a href="{{ url_for('event_detail', sport=event.sport, format=event.format, gender=event.gender_category) }}"
+       class="btn btn-secondary">Cancel</a>
+</div>
+
+<div class="card" style="max-width:520px;">
+    <div class="card-header">Event Details</div>
+    <div class="card-body">
+        <form method="POST"
+              action="{{ url_for('edit_event', sport=event.sport, format=event.format, gender=event.gender_category) }}">
+            <div class="form-group">
+                <label class="form-label">Sport</label>
+                <input type="text" class="form-control" value="{{ event.sport }}" disabled>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Format</label>
+                <input type="text" class="form-control" value="{{ event.format }}" disabled>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Gender Category</label>
+                <input type="text" class="form-control" value="{{ event.gender_category }}" disabled>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Venue *</label>
+                <select name="venue_id" class="form-control" required>
+                    <option value="">-- Select Venue --</option>
+                    {% for v in venues %}
+                    <option value="{{ v.venue_id }}"
+                        {% if v.venue_id == event.venue_id %}selected{% endif %}>
+                        {{ v.name }} — {{ v.city }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{{ url_for('event_detail', sport=event.sport, format=event.format, gender=event.gender_category) }}"
+                   class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

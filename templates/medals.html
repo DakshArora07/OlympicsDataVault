@@ -13,28 +13,30 @@
         <button class="tab-btn" data-tab="recent">Recent Gold</button>
     </div>
 
+    <!-- BY COUNTRY -->
     <div class="tab-panel" data-panel="countries">
         <div class="mb-16">
-            <input type="search" id="liveSearch" class="form-control"
-                   placeholder="Search country..." style="max-width:260px;">
+            <input type="search" id="searchCountry" class="form-control"
+                   placeholder="Search country..." style="max-width:260px;"
+                   oninput="filterTable('searchCountry', 'tblCountry')">
         </div>
         {% if individual_tally %}
         <div class="card">
-            <table>
+            <table id="tblCountry">
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>Country</th>
                         <th>Continent</th>
-                        <th>&#127948; Gold</th>
-                        <th>&#127949; Silver</th>
-                        <th>&#127950; Bronze</th>
+                        <th>&#129351; Gold</th>
+                        <th>&#129352; Silver</th>
+                        <th>&#129353; Bronze</th>
                         <th>Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for row in individual_tally %}
-                    <tr data-searchable>
+                    <tr>
                         <td class="text-muted text-small">{{ loop.index }}</td>
                         <td>
                             {% if row.flag %}
@@ -59,16 +61,22 @@
         {% endif %}
     </div>
 
+    <!-- BY SPORT -->
     <div class="tab-panel" data-panel="sports" style="display:none;">
+        <div class="mb-16">
+            <input type="search" id="searchSport" class="form-control"
+                   placeholder="Search sport..." style="max-width:260px;"
+                   oninput="filterTable('searchSport', 'tblSport')">
+        </div>
         {% if sport_medals %}
         <div class="card">
-            <table>
+            <table id="tblSport">
                 <thead>
                     <tr>
                         <th>Sport</th>
-                        <th>&#127948; Gold</th>
-                        <th>&#127949; Silver</th>
-                        <th>&#127950; Bronze</th>
+                        <th>&#129351; Gold</th>
+                        <th>&#129352; Silver</th>
+                        <th>&#129353; Bronze</th>
                         <th>Total</th>
                     </tr>
                 </thead>
@@ -90,10 +98,16 @@
         {% endif %}
     </div>
 
+    <!-- RECENT GOLD -->
     <div class="tab-panel" data-panel="recent" style="display:none;">
+        <div class="mb-16">
+            <input type="search" id="searchRecent" class="form-control"
+                   placeholder="Search athlete or sport..." style="max-width:260px;"
+                   oninput="filterTable('searchRecent', 'tblRecent')">
+        </div>
         {% if gold_medalists %}
         <div class="card">
-            <table>
+            <table id="tblRecent">
                 <thead>
                     <tr>
                         <th>Athlete</th>
@@ -106,7 +120,7 @@
                 <tbody>
                     {% for g in gold_medalists %}
                     <tr>
-                        <td>&#127948; <strong>{{ g.first_name }} {{ g.last_name }}</strong></td>
+                        <td>&#129351; <strong>{{ g.first_name }} {{ g.last_name }}</strong></td>
                         <td>
                             {% if g.flag %}
                             <img src="{{ g.flag }}" alt="" width="20" height="14"
@@ -132,4 +146,16 @@
         {% endif %}
     </div>
 </div>
+
+{% block scripts %}
+<script>
+function filterTable(inputId, tableId) {
+    const query = document.getElementById(inputId).value.toLowerCase();
+    const rows = document.getElementById(tableId).querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}
 {% endblock %}

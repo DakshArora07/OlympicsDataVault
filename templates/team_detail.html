@@ -1,0 +1,141 @@
+{% extends "layout.html" %}
+{% block title %}Team #{{ team.team_id }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{{ url_for('teams') }}">Teams</a> &rsaquo;
+    Team #{{ team.team_id }} — {{ team.country_name }}
+</div>
+<div class="flex-between mb-16">
+    <div>
+        <div class="page-title">Team #{{ team.team_id }} &mdash; {{ team.country_name }}</div>
+        <div class="page-subtitle">{{ team.number_of_players }} player(s)</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+        <a href="{{ url_for('edit_team_page', team_id=team.team_id, country_code=team.country_code) }}"
+           class="btn btn-secondary">Edit</a>
+        <form method="POST"
+              action="{{ url_for('delete_team', team_id=team.team_id, country_code=team.country_code) }}"
+              onsubmit="return confirm('Delete Team #{{ team.team_id }} ({{ team.country_name }})? All related records will also be deleted.')">
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="two-col" style="align-items:start;">
+
+    <div>
+        <div class="card mb-16">
+            <div class="card-header">Team Info</div>
+            <div class="card-body">
+                <div class="flex-center mb-16">
+                    {% if team.country_flag %}
+                    <img src="{{ team.country_flag }}" alt="" width="48" height="32"
+                         style="border-radius:4px;margin-right:12px;"
+                         onerror="this.style.display='none'">
+                    {% endif %}
+                    <div>
+                        <div style="font-weight:bold;font-size:1.1rem;">{{ team.country_name }}</div>
+                        <div class="text-muted text-small">Team #{{ team.team_id }}</div>
+                    </div>
+                </div>
+                <table style="width:100%;">
+                    <tr><td class="text-muted text-small" style="width:130px;padding:5px 0;">Team ID</td>
+                        <td><strong>#{{ team.team_id }}</strong></td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">Country</td>
+                        <td><strong>{{ team.country_name }}</strong></td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">Country Code</td>
+                        <td><span class="badge badge-gray">{{ team.country_code }}</span></td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">Players</td>
+                        <td><strong>{{ team.number_of_players }}</strong></td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                Members
+                <span class="badge badge-gray">{{ members|length }}</span>
+            </div>
+            <div class="card-body">
+                {% if members %}
+                <table style="width:100%;">
+                    {% for m in members %}
+                    <tr>
+                        <td style="padding:5px 0;">
+                            <div class="flex-center">
+                                <div class="avatar" style="width:30px;height:30px;font-size:0.75rem;margin-right:8px;">
+                                    {{ m.first_name[0] }}{{ m.last_name[0] }}
+                                </div>
+                                <div>
+                                    <div><strong>{{ m.first_name }} {{ m.last_name }}</strong></div>
+                                    <div class="text-muted text-small">{{ m.sport }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="padding:5px 0;">
+                            <a href="{{ url_for('athlete_detail', reg_num=m.registration_number) }}"
+                               class="btn btn-secondary btn-sm">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p class="text-muted text-center">No members assigned.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="card">
+            <div class="card-header">
+                Participation History
+                <span class="badge badge-gray">{{ participations|length }} game(s)</span>
+            </div>
+            {% if participations %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Game</th>
+                        <th>Date</th>
+                        <th>Score</th>
+                        <th>Medal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in participations %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('event_detail', sport=p.sport, format=p.format, gender=p.gender_category) }}">
+                                {{ p.format }}
+                            </a>
+                            <div class="text-muted text-small">{{ p.gender_category }} &middot; {{ p.sport }}</div>
+                        </td>
+                        <td class="text-small">{{ p.game_number }}</td>
+                        <td class="text-muted text-small">{{ p.date }}</td>
+                        <td><strong>{{ p.score }}</strong></td>
+                        <td>
+                            {% if p.medal == 'Gold' %}
+                                <span class="badge badge-gold">&#129351; Gold</span>
+                            {% elif p.medal == 'Silver' %}
+                                <span class="badge badge-gray">&#129352; Silver</span>
+                            {% elif p.medal == 'Bronze' %}
+                                <span class="badge" style="background:#f5e8d8;color:#7a3a00;">&#129353; Bronze</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="card-body text-muted text-center">No participation records yet.</div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

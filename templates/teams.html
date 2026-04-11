@@ -24,6 +24,7 @@
                 <th>Team ID</th>
                 <th>Country</th>
                 <th>Players</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -32,8 +33,8 @@
                 <td class="text-muted text-small">#{{ t.team_id }}</td>
                 <td>
                     <div class="flex-center">
-                        {% if t.flag %}
-                        <img src="{{ t.flag }}" alt="" width="22" height="15"
+                        {% if t.country_flag %}
+                        <img src="{{ t.country_flag }}" alt="" width="22" height="15"
                              style="vertical-align:middle;margin-right:6px;border-radius:2px;"
                              onerror="this.style.display='none'">
                         {% endif %}
@@ -42,6 +43,10 @@
                     </div>
                 </td>
                 <td>{{ t.number_of_players }}</td>
+                <td>
+                    <a href="{{ url_for('team_detail', team_id=t.team_id, country_code=t.country_code) }}"
+                       class="btn btn-secondary btn-sm">View</a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

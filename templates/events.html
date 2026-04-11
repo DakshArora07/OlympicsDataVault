@@ -28,13 +28,14 @@
                 <th>City</th>
                 <th>Type</th>
                 <th>Games</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             {% for e in events %}
             <tr data-searchable>
                 <td>{{ e.sport }}</td>
-                <td><strong><a href="{{ url_for('event_detail', sport=e.sport, format=e.format, gender=e.gender_category) }}">{{ e.format }}</a></strong></td>
+                <td><strong>{{ e.format }}</strong></td>
                 <td>
                     <span class="badge {% if e.gender_category == 'Male' %}badge-blue{% elif e.gender_category == 'Female' %}badge-red{% else %}badge-green{% endif %}">
                         {{ e.gender_category }}
@@ -48,6 +49,10 @@
                     </span>
                 </td>
                 <td>{{ e.game_count }}</td>
+                <td>
+                    <a href="{{ url_for('event_detail', sport=e.sport, format=e.format, gender=e.gender_category) }}"
+                       class="btn btn-secondary btn-sm">View</a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

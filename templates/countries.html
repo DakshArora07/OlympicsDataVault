@@ -6,13 +6,13 @@
 <div class="flex-between mb-16">
     <div>
         <div class="page-title">Countries</div>
-        <div class="page-subtitle">{{ countries|length }} country(s) registered</div>
+        <div class="page-subtitle">{{ countries|length }} countries registered</div>
     </div>
 </div>
 
 <div class="mb-16">
     <input type="search" id="liveSearch" class="form-control"
-           placeholder="Filter countries..." style="max-width:280px;">
+           placeholder="Search countries..." style="max-width:280px;">
 </div>
 
 {% if countries %}
@@ -20,6 +20,7 @@
     <table>
         <thead>
             <tr>
+                <th>Flag</th>
                 <th>Country</th>
                 <th>Athletes</th>
             </tr>
@@ -28,11 +29,11 @@
             {% for c in countries %}
             <tr data-searchable>
                 <td>
-                    <strong>{{ c.name }}</strong>
-                    {% if c.flag %}
-                        <span style="margin-left:8px;">{{ c.flag }}</span>
-                    {% endif %}
+                    <img src="{{ c.flag }}" alt="{{ c.name }}" width="28" height="19"
+                         style="border-radius:3px;vertical-align:middle;"
+                         onerror="this.style.display='none'">
                 </td>
+                <td><strong>{{ c.name }}</strong></td>
                 <td>{{ c.athlete_count }}</td>
             </tr>
             {% endfor %}

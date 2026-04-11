@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+{% block title %}{{ venue.name }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{{ url_for('venues') }}">Venues</a> &rsaquo;
+    {{ venue.name }}
+</div>
+<div class="flex-between mb-16">
+    <div>
+        <div class="page-title">{{ venue.name }}</div>
+        <div class="page-subtitle">{{ venue.city }}, {{ venue.country }}</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+        <a href="{{ url_for('edit_venue_page', venue_id=venue.venue_id) }}"
+           class="btn btn-secondary">Edit</a>
+        <form method="POST"
+              action="{{ url_for('delete_venue', venue_id=venue.venue_id) }}"
+              onsubmit="return confirm('Delete {{ venue.name }}? All related events will also be deleted.')">
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="two-col" style="align-items:start;">
+
+    <div>
+        <div class="card mb-16">
+            <div class="card-header">Venue Info</div>
+            <div class="card-body">
+                <div style="font-size:2.5rem;text-align:center;margin-bottom:12px;">&#127967;</div>
+                <table style="width:100%;">
+                    <tr><td class="text-muted text-small" style="width:120px;padding:5px 0;">Venue ID</td>
+                        <td><strong>{{ venue.venue_id }}</strong></td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">Name</td>
+                        <td><strong>{{ venue.name }}</strong></td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">City</td>
+                        <td>{{ venue.city }}</td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">Country</td>
+                        <td>{{ venue.country }}</td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">Capacity</td>
+                        <td><strong>{{ "{:,}".format(venue.capacity) }} seats</strong></td></tr>
+                    <tr><td class="text-muted text-small" style="padding:5px 0;">Events Hosted</td>
+                        <td><strong>{{ events|length }}</strong></td></tr>
+                </table>
+                <div class="cap-bar-bg mt-8">
+                    <div class="cap-bar-fill"
+                         style="width:{{ [((venue.capacity / 80000) * 100)|int, 100]|min }}%;"></div>
+                </div>
+                <div class="text-muted text-small mt-8">{{ "{:,}".format(venue.capacity) }} seats capacity</div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="card">
+            <div class="card-header">
+                Events at this Venue
+                <span class="badge badge-gray">{{ events|length }}</span>
+            </div>
+            {% if events %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sport</th>
+                        <th>Format</th>
+                        <th>Gender</th>
+                        <th>Type</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in events %}
+                    <tr>
+                        <td><strong>{{ e.sport }}</strong></td>
+                        <td>{{ e.format }}</td>
+                        <td>
+                            <span class="badge {% if e.gender_category == 'Male' %}badge-blue{% elif e.gender_category == 'Female' %}badge-red{% else %}badge-green{% endif %}">
+                                {{ e.gender_category }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge {% if e.event_type == 'Team' %}badge-green{% else %}badge-blue{% endif %}">
+                                {{ e.event_type }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('event_detail', sport=e.sport, format=e.format, gender=e.gender_category) }}"
+                               class="btn btn-secondary btn-sm">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="card-body text-muted text-center">No events at this venue yet.</div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
