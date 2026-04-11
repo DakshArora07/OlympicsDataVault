@@ -1,62 +1,60 @@
 {% extends "layout.html" %}
 {% block title %}Events{% endblock %}
+{% block breadcrumb %}Registration &rsaquo; Events{% endblock %}
 
 {% block content %}
-<div class="page-title">Events</div>
-<div class="page-subtitle">All Olympic events, formats and venues — {{ events|length }} event(s) total.</div>
+<div class="flex-between mb-16">
+    <div>
+        <div class="page-title">Events</div>
+        <div class="page-subtitle">{{ events|length }} event(s) registered</div>
+    </div>
+    <a href="{{ url_for('register_event') }}" class="btn btn-primary">+ Register Event</a>
+</div>
 
 <div class="mb-16">
     <input type="search" id="liveSearch" class="form-control"
-           placeholder="Filter events..." style="max-width:280px;">
+           placeholder="Search events..." style="max-width:280px;">
 </div>
 
+{% if events %}
 <div class="card">
-    {% if events %}
     <table>
         <thead>
             <tr>
                 <th>Sport</th>
                 <th>Format</th>
                 <th>Gender</th>
-                <th>Type</th>
                 <th>Venue</th>
                 <th>City</th>
-                <th>Capacity</th>
+                <th>Type</th>
                 <th>Games</th>
-                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             {% for e in events %}
             <tr data-searchable>
-                <td><strong>{{ e.sport }}</strong></td>
-                <td><span class="badge badge-blue">{{ e.format }}</span></td>
+                <td>{{ e.sport }}</td>
+                <td><strong><a href="{{ url_for('event_detail', sport=e.sport, format=e.format, gender=e.gender_category) }}">{{ e.format }}</a></strong></td>
                 <td>
-                    <span class="badge {% if e.gender_category == 'Male' %}badge-blue{% else %}badge-red{% endif %}">
+                    <span class="badge {% if e.gender_category == 'Male' %}badge-blue{% elif e.gender_category == 'Female' %}badge-red{% else %}badge-green{% endif %}">
                         {{ e.gender_category }}
                     </span>
                 </td>
+                <td>{{ e.venue_name }}</td>
+                <td class="text-muted text-small">{{ e.city }}</td>
                 <td>
-                    {% if e.event_type == 'Team' %}
-                        <span class="badge badge-green">Team ({{ e.team_size }})</span>
-                    {% else %}
-                        <span class="badge badge-gray">Individual</span>
-                    {% endif %}
+                    <span class="badge {% if e.event_type == 'Team' %}badge-green{% else %}badge-blue{% endif %}">
+                        {{ e.event_type }}
+                    </span>
                 </td>
-                <td class="text-small">{{ e.venue_name }}</td>
-                <td class="text-small text-muted">{{ e.city }}</td>
-                <td class="text-small">{{ "{:,}".format(e.capacity) }}</td>
                 <td>{{ e.game_count }}</td>
-                <td>
-                    <a href="{{ url_for('event_detail', format=e.format, gender=e.gender_category) }}"
-                       class="btn btn-secondary btn-sm">View</a>
-                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
-    <div class="card-body text-muted text-center">No events found.</div>
-    {% endif %}
 </div>
+{% else %}
+<div class="card card-body text-muted text-center">No events found.</div>
+{% endif %}
+
 {% endblock %}

@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block title %}Teams{% endblock %}
+{% block breadcrumb %}Registration &rsaquo; Teams{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-16">
+    <div>
+        <div class="page-title">Teams</div>
+        <div class="page-subtitle">{{ teams|length }} team(s) registered</div>
+    </div>
+    <a href="{{ url_for('register_team') }}" class="btn btn-primary">+ Register Team</a>
+</div>
+
+<div class="mb-16">
+    <input type="search" id="liveSearch" class="form-control"
+           placeholder="Search teams..." style="max-width:280px;">
+</div>
+
+{% if teams %}
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Team ID</th>
+                <th>Country</th>
+                <th>Players</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in teams %}
+            <tr data-searchable>
+                <td class="text-muted text-small">#{{ t.team_id }}</td>
+                <td>
+                    <div class="flex-center">
+                        {% if t.flag %}
+                        <img src="{{ t.flag }}" alt="" width="22" height="15"
+                             style="vertical-align:middle;margin-right:6px;border-radius:2px;"
+                             onerror="this.style.display='none'">
+                        {% endif %}
+                        <strong>{{ t.country_name }}</strong>
+                        <span class="text-muted text-small" style="margin-left:6px;">({{ t.country_code }})</span>
+                    </div>
+                </td>
+                <td>{{ t.number_of_players }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card card-body text-muted text-center">No teams registered yet.</div>
+{% endif %}
+
+{% endblock %}

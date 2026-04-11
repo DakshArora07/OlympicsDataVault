@@ -118,7 +118,7 @@
                     {% for p in participations %}
                     <tr>
                         <td>
-                            <a href="{{ url_for('event_detail', format=p.format, gender=p.gender_category) }}">
+                            <a href="{{ url_for('event_detail', sport=p.sport, format=p.format, gender=p.gender_category) }}">
                                 {{ p.format }}
                             </a>
                             <div class="text-muted text-small">{{ p.gender_category }} &middot; {{ p.sport }}</div>
