@@ -57,6 +57,7 @@ def index():
                            sport_count=sport_count,
                            venue_count=venue_count
                            )
+
 @app.route("/medals")
 def medals():
     return render_template('medals.html', title='Medals')
@@ -446,11 +447,37 @@ def event_detail(sport, format, gender):
 
     # TODO: Leaderboard Query(s)
 
+    cursor.execute("""
+        SELECT registration_number, first_name, last_name
+        FROM athlete
+        WHERE sport = %s AND gender = %s
+        ORDER BY last_name, first_name
+    """, (sport, gender))
+    eligible_athletes = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT t.team_id, t.country_code, c.name as country_name
+        FROM team t
+        JOIN country c ON t.country_code = c.country_code
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM member_of mo
+            JOIN athlete a ON mo.athlete_registration_number = a.registration_number
+            WHERE mo.team_id = t.team_id
+              AND mo.country_code = t.country_code
+              AND (a.sport != %s OR a.gender != %s)
+        )
+        ORDER BY c.name, t.team_id
+    """, (sport, gender))
+    eligible_teams = cursor.fetchall()
+
     conn.close()
     return render_template('event_detail.html',
                            event=event,
                            games=games,
-                           leaderboard=[])
+                           leaderboard=[],
+                           eligible_athletes=eligible_athletes,
+                           eligible_teams=eligible_teams)
 
 @app.route("/register_event", methods=["GET", "POST"])
 def register_event():
@@ -572,6 +599,53 @@ def sports():
 
     conn.close()
     return render_template('sports.html', sports=sport_list)
+
+@app.route("/events/<sport>/<format>/<gender>/add_game", methods=["POST"])
+def add_game(sport, format, gender):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    game_number = request.form.get("game_number")
+    date = request.form.get("date")
+
+    cursor.execute("""
+        INSERT INTO game (sport, format, gender_category, game_number, date)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (sport, format, gender, game_number, date))
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('event_detail', sport=sport, format=format, gender=gender))
+
+@app.route("/events/<sport>/<format>/<gender>/<game_number>/add_participation", methods=["POST"])
+def add_participation (sport, format, gender, game_number):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    score = request.form.get("score")
+    medal = request.form.get("medal") or None
+    athlete_id = request.form.get("athlete_id")
+    team = request.form.get("team_id")
+
+    if athlete_id:
+        cursor.execute("""
+                    INSERT INTO athlete_participation
+                    (athlete_registration_number, sport, format, gender_category, game_number, score, medal)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (athlete_id, sport, format, gender, game_number, score, medal))
+    elif team:
+        team_id, country_code = team.split("|")
+        cursor.execute("""
+                    INSERT INTO team_participation
+                    (country_code, team_id, sport, format, gender_category, game_number, score, medal)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                """, (country_code, team_id, sport, format, gender, game_number, score, medal))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('event_detail', sport=sport, format=format, gender=gender))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
