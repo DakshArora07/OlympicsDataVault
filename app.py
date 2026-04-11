@@ -57,7 +57,6 @@ def index():
                            sport_count=sport_count,
                            venue_count=venue_count
                            )
-
 @app.route("/medals")
 def medals():
     return render_template('medals.html', title='Medals')
@@ -123,95 +122,6 @@ def athletes():
                            gender_filter=gender_filter
                            )
 
-@app.route("/athletes/<int:reg_num>")
-def athlete_detail(reg_num):
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("""
-        SELECT a.*, c.name AS country_name, c.flag AS flag
-        FROM athlete a
-        LEFT JOIN country c ON a.country_code = c.country_code
-        WHERE a.registration_number = %s
-    """, (reg_num,))
-    athlete = cursor.fetchone()
-
-    if not athlete:
-        conn.close()
-        return redirect(url_for("athletes"))
-
-
-    cursor.execute("""
-        SELECT ap.*, g.date, e.sport, v.name as venue_name
-        FROM athlete_participation ap
-        JOIN game g ON ap.format = g.format
-            AND ap.gender_category = g.gender_category
-            AND ap.game_number = g.game_number
-        JOIN event e ON ap.format = e.format 
-               AND ap.gender_category = e.gender_category
-        JOIN venue v ON e.venue_id = v.venue_id
-        WHERE ap.athlete_registration_number = %s
-    """, (reg_num,))
-    participations = cursor.fetchall()
-
-    athlete_medals = {'Gold' : 0, 'Silver' : 0, 'Bronze' : 0}
-    for p in participations:
-        if p['medal'] in athlete_medals:
-            athlete_medals[p['medal']] += 1
-
-    conn.close()
-    return render_template('athlete_detail.html',
-                           athlete=athlete,
-                           medals=athlete_medals,
-                           participations=participations
-                           )
-
-@app.route("/events")
-def events():
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("""
-            SELECT e.format, e.gender_category, e.sport,
-                   v.name AS venue_name, v.city, v.capacity,
-                   COUNT(DISTINCT g.game_number) AS game_count,
-                   IF(te.format IS NOT NULL, 'Team', 'Individual') AS event_type,
-                   te.team_size
-            FROM event e
-            JOIN venue v ON e.venue_id = v.venue_id
-            LEFT JOIN game g ON e.format = g.format AND e.gender_category = g.gender_category
-            LEFT JOIN team_event te ON e.format = te.format AND e.gender_category = te.gender_category
-            GROUP BY e.format, e.gender_category, e.sport, v.name, v.city, v.capacity, te.format, te.team_size
-            ORDER BY e.sport, e.format
-        """)
-    event_list = cursor.fetchall()
-
-    conn.close()
-    return render_template('events.html', events=event_list)
-
-@app.route("/venues")
-def venues():
-
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("""
-        SELECT v.*, COUNT(e.format) as event_count
-        FROM venue v
-        LEFT JOIN event e ON v.venue_id = e.venue_id
-        GROUP BY v.venue_id
-        ORDER BY v.venue_id
-    """)
-
-    venue_list = cursor.fetchall()
-    conn.close()
-    return render_template('venues.html', venues=venue_list)
-
-@app.route("/search")
-def search():
-    return render_template('search.html', title='Search')
-
-
 @app.route("/register_athlete", methods=['GET', 'POST'])
 def register_athlete():
     conn = get_connection()
@@ -263,6 +173,48 @@ def register_athlete():
                            sports=sports
                            )
 
+@app.route("/athletes/<int:reg_num>")
+def athlete_detail(reg_num):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT a.*, c.name AS country_name, c.flag AS flag
+        FROM athlete a
+        LEFT JOIN country c ON a.country_code = c.country_code
+        WHERE a.registration_number = %s
+    """, (reg_num,))
+    athlete = cursor.fetchone()
+
+    if not athlete:
+        conn.close()
+        return redirect(url_for("athletes"))
+
+
+    cursor.execute("""
+        SELECT ap.*, g.date, e.sport, v.name as venue_name
+        FROM athlete_participation ap
+        JOIN game g ON ap.format = g.format
+            AND ap.gender_category = g.gender_category
+            AND ap.game_number = g.game_number
+        JOIN event e ON ap.format = e.format 
+               AND ap.gender_category = e.gender_category
+        JOIN venue v ON e.venue_id = v.venue_id
+        WHERE ap.athlete_registration_number = %s
+    """, (reg_num,))
+    participations = cursor.fetchall()
+
+    athlete_medals = {'Gold' : 0, 'Silver' : 0, 'Bronze' : 0}
+    for p in participations:
+        if p['medal'] in athlete_medals:
+            athlete_medals[p['medal']] += 1
+
+    conn.close()
+    return render_template('athlete_detail.html',
+                           athlete=athlete,
+                           medals=athlete_medals,
+                           participations=participations
+                           )
 
 @app.route("/athletes/<int:reg_num>/edit", methods=['GET', 'POST'])
 def edit_athlete(reg_num):
@@ -347,7 +299,6 @@ def edit_athlete(reg_num):
         sports=sports
     )
 
-
 @app.route("/athletes/<int:reg_num>/delete", methods=["POST"])
 def delete_athlete(reg_num):
 
@@ -364,9 +315,23 @@ def delete_athlete(reg_num):
     conn.close()
     return redirect(url_for('athletes'))
 
-@app.route("/events/<format>/<gender>")
-def event_detail(format, gender):
-    return render_template('event_detail.html')
+@app.route("/api/athletes_by_country/<country_code>")
+def athletes_by_country(country_code):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT registration_number, first_name, last_name, sport
+        FROM athlete
+        WHERE country_code = %s
+        ORDER BY last_name, first_name
+    """, (country_code,))
+
+    athlete_list = cursor.fetchall()
+    conn.close()
+
+    from flask import jsonify
+    return jsonify(athlete_list)
 
 @app.route("/teams")
 def teams():
@@ -383,9 +348,190 @@ def teams():
 
     team_list = cursor.fetchall()
     return render_template('teams.html', teams=team_list)
-@app.route("/register_team")
+
+@app.route("/register_team", methods=["GET", "POST"])
 def register_team():
-    return render_template('register_team.html')
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT country_code, name 
+        FROM country 
+        ORDER BY name
+    """)
+    countries = cursor.fetchall()
+
+    if request.method == "POST":
+        team_id = request.form.get("team_id")
+        country_code = request.form.get("country_code")
+        number_of_players = request.form.get("number_of_players")
+        athlete_ids = request.form.getlist("athlete_ids")
+
+        cursor.execute("""
+                        INSERT INTO team (country_code, team_id, number_of_players)
+                        VALUES (%s, %s, %s)
+                    """, (country_code, team_id, number_of_players))
+
+        for athlete_id in athlete_ids:
+            cursor.execute("""
+                            INSERT INTO member_of (athlete_registration_number, country_code, team_id)
+                            VALUES (%s, %s, %s)
+                        """, (athlete_id, country_code, team_id))
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for("teams"))
+
+    conn.close()
+    return render_template("register_team.html", countries=countries)
+
+@app.route("/events")
+def events():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+            SELECT e.format, e.gender_category, e.sport,
+                   v.name AS venue_name, v.city, v.capacity,
+                   COUNT(DISTINCT g.game_number) AS game_count,
+                   IF(te.format IS NOT NULL, 'Team', 'Individual') AS event_type,
+                   te.team_size
+            FROM event e
+            JOIN venue v ON e.venue_id = v.venue_id
+            LEFT JOIN game g ON e.format = g.format AND e.gender_category = g.gender_category
+            LEFT JOIN team_event te ON e.format = te.format AND e.gender_category = te.gender_category
+            GROUP BY e.format, e.gender_category, e.sport, v.name, v.city, v.capacity, te.format, te.team_size
+            ORDER BY e.sport, e.format
+        """)
+    event_list = cursor.fetchall()
+
+    conn.close()
+    return render_template('events.html', events=event_list)
+
+@app.route("/events/<sport>/<format>/<gender>")
+def event_detail(sport, format, gender):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+            SELECT e.format, e.gender_category, e.sport,
+                   v.name AS venue_name, v.city, v.country AS venue_country, v.capacity,
+                   IF(te.format IS NOT NULL, 'Team', 'Individual') AS event_type,
+                   te.team_size
+            FROM event e
+            JOIN venue v ON e.venue_id = v.venue_id
+            LEFT JOIN team_event te ON e.format = te.format AND e.gender_category = te.gender_category
+            WHERE e.sport = %s AND e.format = %s AND e.gender_category = %s
+        """, (sport, format, gender))
+    event = cursor.fetchone()
+
+    if not event:
+        conn.close()
+        return redirect(url_for('events'))
+
+    cursor.execute("""
+            SELECT g.game_number, g.date,
+                   COUNT(ap.athlete_registration_number) AS participants
+            FROM game g
+            LEFT JOIN athlete_participation ap
+                ON g.format = ap.format
+                AND g.gender_category = ap.gender_category
+                AND g.sport = ap.sport
+                AND g.game_number = ap.game_number
+            WHERE g.sport = %s AND g.format = %s AND g.gender_category = %s
+            GROUP BY g.game_number, g.date
+            ORDER BY g.date
+        """, (sport, format, gender))
+    games = cursor.fetchall()
+
+    # TODO: Leaderboard Query(s)
+
+    conn.close()
+    return render_template('event_detail.html',
+                           event=event,
+                           games=games,
+                           leaderboard=[])
+
+@app.route("/register_event", methods=["GET", "POST"])
+def register_event():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT name
+        FROM sport
+        ORDER BY name
+    """)
+    sports_list = [row['name'] for row in cursor.fetchall()]
+
+    cursor.execute("""
+        SELECT venue_id, name
+        FROM venue
+        ORDER BY name
+    """)
+    venue_list = cursor.fetchall()
+
+    if request.method == "POST":
+        sport = request.form.get("sport")
+        format = request.form.get("format")
+        gender_category = request.form.get("gender_category")
+        venue_id = request.form.get("venue_id") or None
+        event_type = request.form.get("event_type")
+        team_size = request.form.get("team_size") or None
+
+        cursor.execute("""
+            INSERT INTO event (sport, format, gender_category, venue_id)
+            VALUES (%s, %s, %s, %s)     
+        """, (sport, format, gender_category, venue_id))
+
+        if event_type == 'Individual':
+            cursor.execute("""
+                INSERT INTO individual_event (sport, format, gender_category)
+                VALUES (%s, %s, %s)
+            """, (sport, format, gender_category))
+        else:
+            cursor.execute("""
+                INSERT INTO team_event (sport, format, gender_category, team_size)
+                VALUES (%s, %s, %s, %s)
+            """, (sport, format, gender_category, team_size))
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for("events"))
+
+    return render_template("register_event.html", sports=sports_list, venues=venue_list)
+
+@app.route("/events/<sport>/<format>/<gender>/delete", methods=["POST"])
+def delete_event(sport, format, gender):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        DELETE FROM event
+        WHERE sport = %s AND format = %s AND gender_category = %s
+    """, (sport, format, gender))
+
+    conn.commit()
+    conn.close()
+    return redirect(url_for('events'))
+
+@app.route("/venues")
+def venues():
+
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT v.*, COUNT(e.format) as event_count
+        FROM venue v
+        LEFT JOIN event e ON v.venue_id = e.venue_id
+        GROUP BY v.venue_id
+        ORDER BY v.venue_id
+    """)
+
+    venue_list = cursor.fetchall()
+    conn.close()
+    return render_template('venues.html', venues=venue_list)
 
 @app.route("/register_venue", methods=["GET", "POST"])
 def register_venue():
@@ -426,76 +572,6 @@ def sports():
 
     conn.close()
     return render_template('sports.html', sports=sport_list)
-
-@app.route("/register_sport", methods=["GET", "POST"])
-def register_sport():
-    if request.method == "POST":
-        name = request.form.get("name")
-        sport_type = request.form.get("type")
-
-        conn = get_connection()
-        cursor = conn.cursor(dictionary=True)
-
-        cursor.execute("""
-            INSERT INTO sport (name, type)
-            VALUES (%s, %s)
-        """, (name, sport_type))
-
-        conn.commit()
-        conn.close()
-        return redirect(url_for("sports"))
-
-    return render_template("register_sport.html")
-
-@app.route("/register_event", methods=["GET", "POST"])
-def register_event():
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("""
-        SELECT name
-        FROM sport
-        ORDER BY name
-    """)
-    sports_list = [row['name'] for row in cursor.fetchall()]
-
-    cursor.execute("""
-        SELECT name
-        FROM venue
-        ORDER BY name
-    """)
-    venue_list = cursor.fetchall()
-
-    if request.method == "POST":
-        sport = request.form.get("sport")
-        format = request.form.get("format")
-        gender_category = request.form.get("gender_category")
-        venue_id = request.form.get("venue_id")
-        event_type = request.form.get("event_type")
-        team_size = request.form.get("team_size") or None
-
-        cursor.execute("""
-            INSERT INTO event (sport, format, gender_category, venue_id)
-            VALUES (%s, %s, %s, %d)     
-        """, (sport, format, gender_category, venue_id))
-
-        if event_type == 'Individual':
-            cursor.execute("""
-                INSERT INTO individual_event (sport, format, gender_category)
-                VALUES (%s, %s, %s)
-            """, (sport, format, gender_category))
-        else:
-            cursor.execute("""
-                INSERT INTO team_event (sport, format, gender_category, team_size)
-                VALUES (%s, %s, %s, %d)
-            """, (sport, format, gender_category, team_size))
-
-        conn.commit()
-        conn.close()
-        return redirect(url_for("events"))
-
-    return render_template("register_event.html", sports=sports_list, venues=venue_list)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
