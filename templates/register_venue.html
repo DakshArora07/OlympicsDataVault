@@ -45,10 +45,18 @@
                     <input type="text" name="city" class="form-control" required maxlength="50"
                            value="{{ form.get('city', '') if form else '' }}">
                 </div>
+
                 <div class="form-group">
                     <label class="form-label">Country *</label>
-                    <input type="text" name="country" class="form-control" required maxlength="60"
-                           value="{{ form.get('country', '') if form else '' }}">
+                    <select name="country" class="form-control" required>
+                        <option value="">Select Country</option>
+                        {% for c in countries %}
+                            <option value="{{ c.country_code }}"
+                                {% if form and form.get('country') == c.country_code %}selected{% endif %}>
+                                {{ c.name }} ({{ c.country_code }})
+                            </option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
 
