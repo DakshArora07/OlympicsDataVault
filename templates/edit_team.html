@@ -8,7 +8,7 @@
         <div class="page-title">Edit Team #{{ team.team_id }}</div>
         <div class="page-subtitle">{{ team.country_name }}</div>
     </div>
-    <a href="{{ url_for('team_detail', team_id=team.team_id, country_code=team.country_code) }}"
+    <a href="{{ url_for('teams.team_detail', team_id=team.team_id, country_code=team.country_code) }}"
        class="btn btn-secondary">Cancel</a>
 </div>
 
@@ -16,22 +16,62 @@
     <div class="card-header">Team Details</div>
     <div class="card-body">
         <form method="POST"
-              action="{{ url_for('edit_team', team_id=team.team_id, country_code=team.country_code) }}">
-            <div class="form-group">
-                <label class="form-label">Country</label>
-                <input type="text" class="form-control" value="{{ team.country_name }}" disabled>
+      action="{{ url_for('teams.edit_team_page', team_id=team.team_id, country_code=team.country_code) }}">
+
+    <div class="form-group">
+        <label class="form-label">Country</label>
+        <input type="text" class="form-control" value="{{ team.country_name }}" disabled>
+    </div>
+
+    <div class="form-section">Select Members</div>
+    <div class="form-hint mb-8">Check all athletes that should be on this team. Number of players will update automatically.</div>
+
+    {% if current_members or available_athletes %}
+    <div style="border:1px solid #e2e8f0; border-radius:6px; max-height:400px; overflow-y:auto; background:#f8fafc;">
+
+        {% if current_members %}
+        <div style="padding:8px 14px; background:#e8f5e9; font-size:12px; font-weight:600; color:#2e7d32;">
+            CURRENT MEMBERS
+        </div>
+        {% for m in current_members %}
+        <label style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid #e2e8f0; cursor:pointer;">
+            <input type="checkbox" name="athlete_ids" value="{{ m.registration_number }}" checked
+                   style="width:15px;height:15px;">
+            <div>
+                <div style="font-size:13px;font-weight:500;">{{ m.first_name }} {{ m.last_name }}</div>
+                <div class="text-muted text-small">#{{ m.registration_number }} &mdash; {{ m.sport }}</div>
             </div>
-            <div class="form-group">
-                <label class="form-label">Number of Players *</label>
-                <input type="number" name="number_of_players" class="form-control"
-                       value="{{ team.number_of_players }}" min="1" required>
+        </label>
+        {% endfor %}
+        {% endif %}
+
+        {% if available_athletes %}
+        <div style="padding:8px 14px; background:#f3f4f6; font-size:12px; font-weight:600; color:#6b7280;">
+            AVAILABLE ATHLETES
+        </div>
+        {% for a in available_athletes %}
+        <label style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid #e2e8f0; cursor:pointer;">
+            <input type="checkbox" name="athlete_ids" value="{{ a.registration_number }}"
+                   style="width:15px;height:15px;">
+            <div>
+                <div style="font-size:13px;font-weight:500;">{{ a.first_name }} {{ a.last_name }}</div>
+                <div class="text-muted text-small">#{{ a.registration_number }} &mdash; {{ a.sport }}</div>
             </div>
-            <div style="display:flex;gap:8px;margin-top:8px;">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="{{ url_for('team_detail', team_id=team.team_id, country_code=team.country_code) }}"
-                   class="btn btn-secondary">Cancel</a>
-            </div>
-        </form>
+        </label>
+        {% endfor %}
+        {% endif %}
+
+    </div>
+    {% else %}
+    <p class="text-muted text-small">No athletes available for this country.</p>
+    {% endif %}
+
+    <div style="display:flex;gap:8px;margin-top:16px;">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('teams.team_detail', team_id=team.team_id, country_code=team.country_code) }}"
+           class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
     </div>
 </div>
 

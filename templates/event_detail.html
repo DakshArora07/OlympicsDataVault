@@ -3,280 +3,376 @@
 {% block breadcrumb %}Registration &rsaquo; Events &rsaquo; {{ event.format }} {{ event.gender_category }}{% endblock %}
 
 {% block content %}
-<div class="flex-between mb-16">
-    <div>
-        <div class="page-title">{{ event.format }} &mdash; {{ event.gender_category }}</div>
-        <div class="page-subtitle">{{ event.sport }} &mdash; {{ event.venue_name }}, {{ event.city }}</div>
-    </div>
-    <div style="display:flex;gap:8px;">
-        <a href="{{ url_for('edit_event_page', sport=event.sport, format=event.format, gender=event.gender_category) }}"
-           class="btn btn-secondary">Edit</a>
-        <form method="POST"
-              action="{{ url_for('delete_event', sport=event.sport, format=event.format, gender=event.gender_category) }}"
-              onsubmit="return confirm('Delete {{ event.format }} ({{ event.gender_category }})? All related games and participation records will also be deleted.')">
-            <button type="submit" class="btn btn-danger">Delete</button>
-        </form>
-    </div>
-</div>
-
-<div class="stat-row">
-    <div class="stat-box">
-        <div class="stat-label">Sport</div>
-        <div style="font-weight:bold;font-size:1.1rem;margin-top:4px;">{{ event.sport }}</div>
-    </div>
-    <div class="stat-box gold-border">
-        <div class="stat-label">Event Type</div>
-        <div style="font-weight:bold;font-size:1.1rem;margin-top:4px;">{{ event.event_type }}</div>
-    </div>
-    <div class="stat-box red-border">
-        <div class="stat-label">Venue Capacity</div>
-        <div style="font-weight:bold;font-size:1.1rem;margin-top:4px;">{{ "{:,}".format(event.capacity) }}</div>
-    </div>
-    <div class="stat-box green-border">
-        <div class="stat-label">Games Scheduled</div>
-        <div style="font-weight:bold;font-size:1.1rem;margin-top:4px;">{{ games|length }}</div>
-    </div>
-</div>
-
-<div class="two-col" style="align-items:start;">
-
-    <div>
-
-        <!-- GAME SCHEDULE CARD -->
-        <div class="card mb-16">
-            <div class="card-header">
-                Game Schedule
-                <button class="btn btn-primary btn-sm" onclick="toggleAddGame()">+ Add Game</button>
-            </div>
-
-            <!-- ADD GAME INLINE FORM -->
-            <div id="addGameForm" style="display:none; padding:14px 16px; border-bottom:1px solid #e2e8f0; background:#f8fafc;">
-                <form method="POST" action="{{ url_for('add_game', sport=event.sport, format=event.format, gender=event.gender_category) }}">
-                    <div class="form-row" style="align-items:flex-end;">
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label">Game Number *</label>
-                            <input type="text" name="game_number" class="form-control"
-                                   placeholder="e.g. G1" required maxlength="30">
-                        </div>
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label">Date *</label>
-                            <input type="date" name="date" class="form-control" required>
-                        </div>
-                        <div style="padding-bottom:1px;">
-                            <button type="submit" class="btn btn-primary">Save Game</button>
-                            <button type="button" class="btn btn-secondary" onclick="toggleAddGame()">Cancel</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            {% if games %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Game</th>
-                        <th>Date</th>
-                        <th>Participants</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for g in games %}
-                    <tr>
-                        <td><span class="badge badge-blue">{{ g.game_number }}</span></td>
-                        <td class="text-small">{{ g.date }}</td>
-                        <td>{{ g.participants }}</td>
-                        <td>
-                            <button class="btn btn-secondary btn-sm"
-                                    onclick="toggleParticipation('{{ g.game_number }}')">
-                                + Add Participation
-                            </button>
-                        </td>
-                    </tr>
-
-                    <!-- ADD PARTICIPATION INLINE FORM -->
-                    <tr id="participation-{{ g.game_number }}" style="display:none;">
-                        <td colspan="4" style="padding:14px 16px; background:#f8fafc;">
-                            <form method="POST" action="{{ url_for('add_participation', sport=event.sport, format=event.format, gender=event.gender_category, game_number=g.game_number) }}">
-
-                                {% if event.event_type == 'Individual' %}
-                                <div class="form-row" style="align-items:flex-end;">
-                                    <div class="form-group" style="margin-bottom:0;">
-                                        <label class="form-label">Athlete *</label>
-                                        <select name="athlete_id" class="form-control" required>
-                                            <option value="">-- Select Athlete --</option>
-                                            {% for a in eligible_athletes %}
-                                            <option value="{{ a.registration_number }}">
-                                                {{ a.first_name }} {{ a.last_name }} (#{{ a.registration_number }})
-                                            </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div class="form-group" style="margin-bottom:0;">
-                                        <label class="form-label">Score *</label>
-                                        <input type="number" name="score" class="form-control"
-                                               step="0.01" min="0" placeholder="e.g. 9.85" required>
-                                    </div>
-                                    <div class="form-group" style="margin-bottom:0;">
-                                        <label class="form-label">Medal</label>
-                                        <select name="medal" class="form-control">
-                                            <option value="">-- None --</option>
-                                            <option value="Gold">🥇 Gold</option>
-                                            <option value="Silver">🥈 Silver</option>
-                                            <option value="Bronze">🥉 Bronze</option>
-                                        </select>
-                                    </div>
-                                    <div style="padding-bottom:1px;">
-                                        <button type="submit" class="btn btn-primary">Add</button>
-                                        <button type="button" class="btn btn-secondary"
-                                                onclick="toggleParticipation('{{ g.game_number }}')">Cancel</button>
-                                    </div>
-                                </div>
-
-                                {% else %}
-                                <div class="form-row" style="align-items:flex-end;">
-                                    <div class="form-group" style="margin-bottom:0;">
-                                        <label class="form-label">Team *</label>
-                                        <select name="team_id" class="form-control" required>
-                                            <option value="">-- Select Team --</option>
-                                            {% for t in eligible_teams %}
-                                            <option value="{{ t.team_id }}|{{ t.country_code }}">
-                                                {{ t.country_name }} — Team #{{ t.team_id }}
-                                            </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div class="form-group" style="margin-bottom:0;">
-                                        <label class="form-label">Score *</label>
-                                        <input type="number" name="score" class="form-control"
-                                               step="0.01" min="0" placeholder="e.g. 3.00" required>
-                                    </div>
-                                    <div class="form-group" style="margin-bottom:0;">
-                                        <label class="form-label">Medal</label>
-                                        <select name="medal" class="form-control">
-                                            <option value="">-- None --</option>
-                                            <option value="Gold">🥇 Gold</option>
-                                            <option value="Silver">🥈 Silver</option>
-                                            <option value="Bronze">🥉 Bronze</option>
-                                        </select>
-                                    </div>
-                                    <div style="padding-bottom:1px;">
-                                        <button type="submit" class="btn btn-primary">Add</button>
-                                        <button type="button" class="btn btn-secondary"
-                                                onclick="toggleParticipation('{{ g.game_number }}')">Cancel</button>
-                                    </div>
-                                </div>
-                                {% endif %}
-
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <div class="card-body text-muted">No games scheduled.</div>
-            {% endif %}
+    <div class="flex-between mb-16">
+        <div>
+            <div class="page-title">{{ event.format }} &mdash; {{ event.gender_category }}</div>
+            <div class="page-subtitle">{{ event.sport }} &mdash; {{ event.venue_name }}, {{ event.city }}</div>
         </div>
+        <div style="display:flex;gap:8px;">
+            <a href="{{ url_for('events.edit_event_page', sport=event.sport, format=event.format, gender=event.gender_category) }}"
+               class="btn btn-secondary">Edit</a>
+            <form method="POST"
+                  action="{{ url_for('events.delete_event', sport=event.sport, format=event.format, gender=event.gender_category) }}"
+                  onsubmit="return confirm('Delete {{ event.format }} ({{ event.gender_category }})? All related games and participation records will also be deleted.')">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
 
-        <!-- VENUE CARD -->
-        <div class="card">
-            <div class="card-header">Venue</div>
-            <div class="card-body">
-                <p><strong>{{ event.venue_name }}</strong></p>
-                <p class="text-muted text-small">{{ event.city }}, {{ event.venue_country }}</p>
-                <p class="text-small mt-8">Capacity: {{ "{:,}".format(event.capacity) }} seats</p>
-                <div class="cap-bar-bg mt-8">
-                    <div class="cap-bar-fill"
-                         style="width:{{ [((event.capacity / 80000) * 100)|int, 100]|min }}%;"></div>
+    <div class="stat-row">
+        <div class="stat-box">
+            <div class="stat-label">Sport</div>
+            <div style="font-weight:bold;font-size:1.1rem;margin-top:4px;">{{ event.sport }}</div>
+        </div>
+        <div class="stat-box gold-border">
+            <div class="stat-label">Event Type</div>
+            <div style="font-weight:bold;font-size:1.1rem;margin-top:4px;">{{ event.event_type }}</div>
+        </div>
+        <div class="stat-box red-border">
+            <div class="stat-label">Venue Capacity</div>
+            <div style="font-weight:bold;font-size:1.1rem;margin-top:4px;">{{ "{:,}".format(event.capacity) }}</div>
+        </div>
+        <div class="stat-box green-border">
+            <div class="stat-label">Games Scheduled</div>
+            <div style="font-weight:bold;font-size:1.1rem;margin-top:4px;">{{ games|length }}</div>
+        </div>
+    </div>
+
+    <div class="two-col" style="align-items:start;">
+
+        <div>
+
+            <!-- GAME SCHEDULE CARD -->
+            <div class="card mb-16">
+                <div class="card-header">
+                    Game Schedule
+                    <button class="btn btn-primary btn-sm" onclick="toggleAddGame()">+ Add Game</button>
+                </div>
+
+                <!-- ADD GAME INLINE FORM -->
+                <div id="addGameForm"
+                     style="display:none; padding:14px 16px; border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+                    <form method="POST"
+                          action="{{ url_for('events.add_game', sport=event.sport, format=event.format, gender=event.gender_category) }}">
+                        <div class="form-row" style="align-items:flex-end;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Game Number *</label>
+                                <input type="text" name="game_number" class="form-control"
+                                       placeholder="e.g. G1" required maxlength="30">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Date *</label>
+                                <input type="date" name="date" class="form-control" required>
+                            </div>
+                            <div style="padding-bottom:1px;">
+                                <button type="submit" class="btn btn-primary">Save Game</button>
+                                <button type="button" class="btn btn-secondary" onclick="toggleAddGame()">Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                {% if games %}
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Game</th>
+                            <th>Date</th>
+                            <th>{% if event.event_type == 'Team' %}Teams{% else %}Athletes{% endif %}</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for g in games %}
+
+                            <!-- MAIN GAME ROW -->
+                            <tr>
+                                <td><span class="badge badge-blue">{{ g.game_number }}</span></td>
+                                <td class="text-small">{{ g.date }}</td>
+                                <td>{{ g.participants }}</td>
+                                <td style="display:flex;gap:6px;">
+                                    <button class="btn btn-secondary btn-sm"
+                                            onclick="toggleParticipants('{{ g.game_number }}')">
+                                        View
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm"
+                                            onclick="toggleParticipation('{{ g.game_number }}')">
+                                        + Add
+                                    </button>
+
+                                    <form method="POST"
+                                          action="{{ url_for('events.delete_game',
+                             sport=event.sport,
+                             format=event.format,
+                             gender=event.gender_category,
+                             game_number=g.game_number) }}"
+                                          onsubmit="return confirm('Delete game {{ g.game_number }}? This will also remove all participation records for this game.');"
+                                          style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                            <!-- VIEW PARTICIPANTS ROW -->
+                            <tr id="participants-{{ g.game_number }}" style="display:none;">
+                                <td colspan="4" style="padding:14px 16px; background:#f8fafc;">
+                                    {% set game_participants = game_participants_map.get(g.game_number, []) %}
+                                    {% if game_participants %}
+                                        <table style="width:100%;">
+                                            <thead>
+                                            {% if event.event_type == 'Individual' %}
+                                                <tr>
+                                                    <th>Athlete</th>
+                                                    <th>Country</th>
+                                                    <th>Score</th>
+                                                    <th>Medal</th>
+                                                </tr>
+                                            {% else %}
+                                                <tr>
+                                                    <th>Team</th>
+                                                    <th>Country</th>
+                                                    <th>Score</th>
+                                                    <th>Medal</th>
+                                                </tr>
+                                            {% endif %}
+                                            </thead>
+                                            <tbody>
+                                            {% for p in game_participants %}
+                                                <tr>
+                                                    {% if event.event_type == 'Individual' %}
+                                                        <td>
+                                                            <a href="{{ url_for('athletes.athlete_detail', reg_num=p.registration_number) }}">
+                                                                {{ p.first_name }} {{ p.last_name }}
+                                                            </a>
+                                                        </td>
+                                                    {% else %}
+                                                        <td>
+                                                            <a href="{{ url_for('teams.team_detail', team_id=p.team_id, country_code=p.country_code) }}">
+                                                                Team #{{ p.team_id }}
+                                                            </a>
+                                                        </td>
+                                                    {% endif %}
+                                                    <td class="text-small text-muted">{{ p.country }}</td>
+                                                    <td><strong>{{ p.score }}</strong></td>
+                                                    <td>
+                                                        {% if p.medal == 'Gold' %}
+                                                            <span class="badge badge-gold">🥇 Gold</span>
+                                                        {% elif p.medal == 'Silver' %}
+                                                            <span class="badge badge-gray">🥈 Silver</span>
+                                                        {% elif p.medal == 'Bronze' %}
+                                                            <span class="badge"
+                                                                  style="background:#f5e8d8;color:#7a3a00;">🥉 Bronze</span>
+                                                        {% else %}
+                                                            <span class="text-muted">—</span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% else %}
+                                        <p class="text-muted text-small">No participants yet.</p>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                            <!-- ADD PARTICIPATION INLINE FORM -->
+                            <tr id="participation-{{ g.game_number }}" style="display:none;">
+                                <td colspan="4" style="padding:14px 16px; background:#f8fafc;">
+                                    <form method="POST"
+                                          action="{{ url_for('events.add_participation', sport=event.sport, format=event.format, gender=event.gender_category, game_number=g.game_number) }}">
+
+                                        {% if event.event_type == 'Individual' %}
+                                            <div class="form-row" style="align-items:flex-end;">
+                                                <div class="form-group" style="margin-bottom:0;">
+                                                    <label class="form-label">Athlete *</label>
+                                                    <select name="athlete_id" class="form-control" required>
+                                                        <option value="">-- Select Athlete --</option>
+                                                        {% for a in eligible_athletes %}
+                                                            <option value="{{ a.registration_number }}">
+                                                                {{ a.first_name }} {{ a.last_name }}
+                                                                (#{{ a.registration_number }})
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group" style="margin-bottom:0;">
+                                                    <label class="form-label">Score *</label>
+                                                    <input type="number" name="score" class="form-control"
+                                                           step="0.01" min="0" placeholder="e.g. 9.85" required>
+                                                </div>
+                                                <div class="form-group" style="margin-bottom:0;">
+                                                    <label class="form-label">Medal</label>
+                                                    <select name="medal" class="form-control">
+                                                        <option value="">-- None --</option>
+                                                        <option value="Gold">🥇 Gold</option>
+                                                        <option value="Silver">🥈 Silver</option>
+                                                        <option value="Bronze">🥉 Bronze</option>
+                                                    </select>
+                                                </div>
+                                                <div style="padding-bottom:1px;">
+                                                    <button type="submit" class="btn btn-primary">Add</button>
+                                                    <button type="button" class="btn btn-secondary"
+                                                            onclick="toggleParticipation('{{ g.game_number }}')">Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                        {% else %}
+                                            <div class="form-row" style="align-items:flex-end;">
+                                                <div class="form-group" style="margin-bottom:0;">
+                                                    <label class="form-label">Team *</label>
+                                                    <select name="team_id" class="form-control" required>
+                                                        <option value="">-- Select Team --</option>
+                                                        {% for t in eligible_teams %}
+                                                            <option value="{{ t.team_id }}|{{ t.country_code }}">
+                                                                {{ t.country_name }} — Team #{{ t.team_id }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group" style="margin-bottom:0;">
+                                                    <label class="form-label">Score *</label>
+                                                    <input type="number" name="score" class="form-control"
+                                                           step="0.01" min="0" placeholder="e.g. 3.00" required>
+                                                </div>
+                                                <div class="form-group" style="margin-bottom:0;">
+                                                    <label class="form-label">Medal</label>
+                                                    <select name="medal" class="form-control">
+                                                        <option value="">-- None --</option>
+                                                        <option value="Gold">🥇 Gold</option>
+                                                        <option value="Silver">🥈 Silver</option>
+                                                        <option value="Bronze">🥉 Bronze</option>
+                                                    </select>
+                                                </div>
+                                                <div style="padding-bottom:1px;">
+                                                    <button type="submit" class="btn btn-primary">Add</button>
+                                                    <button type="button" class="btn btn-secondary"
+                                                            onclick="toggleParticipation('{{ g.game_number }}')">Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+
+                                    </form>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="card-body text-muted">No games scheduled.</div>
+                {% endif %}
+            </div>
+
+            <!-- VENUE CARD -->
+            <div class="card">
+                <div class="card-header">Venue</div>
+                <div class="card-body">
+                    <p><strong>{{ event.venue_name }}</strong></p>
+                    <p class="text-muted text-small">{{ event.city }}, {{ event.venue_country }}</p>
+                    <p class="text-small mt-8">Capacity: {{ "{:,}".format(event.capacity) }} seats</p>
+                    <div class="cap-bar-bg mt-8">
+                        <div class="cap-bar-fill"
+                             style="width:{{ [((event.capacity / 80000) * 100)|int, 100]|min }}%;"></div>
+                    </div>
                 </div>
             </div>
+
         </div>
 
-    </div>
-
-    <!-- LEADERBOARD CARD -->
-    <div>
-        <div class="card">
-            <div class="card-header">
-                {% if event.event_type == 'Individual' %}
-                Athlete Leaderboard
-                {% else %}
-                Team Leaderboard
-                {% endif %}
-                <span class="text-muted text-small" style="font-weight:normal;">aggregation query</span>
-            </div>
-            {% if leaderboard %}
-            <table>
-                <thead>
+        <!-- LEADERBOARD CARD -->
+        <div>
+            <div class="card">
+                <div class="card-header">
                     {% if event.event_type == 'Individual' %}
-                    <tr>
-                        <th>#</th>
-                        <th>Athlete</th>
-                        <th>Country</th>
-                        <th>Games</th>
-                        <th>Best Score</th>
-                        <th>Avg Score</th>
-                        <th>Medals</th>
-                    </tr>
+                        Athlete Leaderboard
                     {% else %}
-                    <tr>
-                        <th>#</th>
-                        <th>Team</th>
-                        <th>Country</th>
-                        <th>Games</th>
-                        <th>Best Score</th>
-                        <th>Avg Score</th>
-                        <th>Medals</th>
-                    </tr>
+                        Team Leaderboard
                     {% endif %}
-                </thead>
-                <tbody>
-                    {% for r in leaderboard %}
-                    <tr>
-                        <td class="text-muted">{{ loop.index }}</td>
-                        {% if event.event_type == 'Individual' %}
-                        <td><strong>{{ r.first_name }} {{ r.last_name }}</strong></td>
-                        {% else %}
-                        <td><strong>Team #{{ r.team_id }}</strong></td>
-                        {% endif %}
-                        <td class="text-small text-muted">{{ r.country }}</td>
-                        <td>{{ r.games_played }}</td>
-                        <td><strong>{{ "%.2f"|format(r.best_score) }}</strong></td>
-                        <td class="text-muted text-small">{{ "%.2f"|format(r.avg_score) }}</td>
-                        <td>
-                            {% if r.medals %}
-                                {% for m in r.medals.split(', ') %}
-                                    {% if m == 'Gold' %}🥇
-                                    {% elif m == 'Silver' %}🥈
-                                    {% elif m == 'Bronze' %}🥉
-                                    {% endif %}
-                                {% endfor %}
-                            {% else %}—{% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <div class="card-body text-muted text-center">No results recorded yet.</div>
-            {% endif %}
+                </div>
+                {% if leaderboard %}
+                    {% if event.event_type == 'Individual' %}
+                        <h3>Leaderboard</h3>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Athlete</th>
+                                <th>Country</th>
+                                <th>Games</th>
+                                <th>Best Score</th>
+                                <th>Avg Score</th>
+                                <th>Medals</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for r in leaderboard %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ r.first_name }} {{ r.last_name }}</td>
+                                    <td>{{ r.country }}</td>
+                                    <td>{{ r.games_played }}</td>
+                                    <td>{{ "%.2f"|format(r.best_score) }}</td>
+                                    <td>{{ "%.2f"|format(r.avg_score) }}</td>
+                                    <td>{{ r.medals }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <h3>Leaderboard</h3>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Team</th>
+                                <th>Country</th>
+                                <th>Games</th>
+                                <th>Best Score</th>
+                                <th>Avg Score</th>
+                                <th>Medals</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for r in leaderboard %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>Team #{{ r.team_id }}</td>
+                                    <td>{{ r.country }}</td>
+                                    <td>{{ r.games_played }}</td>
+                                    <td>{{ "%.2f"|format(r.best_score) }}</td>
+                                    <td>{{ "%.2f"|format(r.avg_score) }}</td>
+                                    <td>{{ r.medals }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                {% endif %}
+            </div>
         </div>
+
     </div>
 
-</div>
+    {% block scripts %}
+        <script>
+            function toggleAddGame() {
+                var form = document.getElementById('addGameForm');
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            }
 
-{% block scripts %}
-<script>
-function toggleAddGame() {
-    var form = document.getElementById('addGameForm');
-    form.style.display = form.style.display === 'none' ? 'block' : 'none';
-}
+            function toggleParticipation(gameNumber) {
+                var row = document.getElementById('participation-' + gameNumber);
+                row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+            }
 
-function toggleParticipation(gameNumber) {
-    var row = document.getElementById('participation-' + gameNumber);
-    row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
-}
-</script>
-{% endblock %}
+            function toggleParticipants(gameNumber) {
+                var row = document.getElementById('participants-' + gameNumber);
+                row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+            }
+        </script>
+    {% endblock %}
 {% endblock %}

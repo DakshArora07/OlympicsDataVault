@@ -8,7 +8,7 @@
         <div class="page-title">Edit Venue</div>
         <div class="page-subtitle">{{ venue.name }}</div>
     </div>
-    <a href="{{ url_for('venue_detail', venue_id=venue.venue_id) }}"
+    <a href="{{ url_for('venues.venue_detail', venue_id=venue.venue_id) }}"
        class="btn btn-secondary">Cancel</a>
 </div>
 
@@ -16,7 +16,7 @@
     <div class="card-header">Venue Details</div>
     <div class="card-body">
         <form method="POST"
-              action="{{ url_for('edit_venue', venue_id=venue.venue_id) }}">
+              action="{{ url_for('venues.edit_venue_page', venue_id=venue.venue_id) }}">
             <div class="form-group">
                 <label class="form-label">Name *</label>
                 <input type="text" name="name" class="form-control"
@@ -29,8 +29,15 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Country *</label>
-                <input type="text" name="country" class="form-control"
-                       value="{{ venue.country }}" required maxlength="60">
+                <select name="country" class="form-control" required>
+                    <option value="">-- Select Country --</option>
+                    {% for c in countries %}
+                    <option value="{{ c.country_code }}"
+                    {% if c.country_code == venue.country %}selected{% endif %}>
+                    {{ c.name }} ({{ c.country_code }})
+                    </option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label class="form-label">Capacity *</label>
@@ -39,7 +46,7 @@
             </div>
             <div style="display:flex;gap:8px;margin-top:8px;">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="{{ url_for('venue_detail', venue_id=venue.venue_id) }}"
+                <a href="{{ url_for('venues.venue_detail', venue_id=venue.venue_id) }}"
                    class="btn btn-secondary">Cancel</a>
             </div>
         </form>

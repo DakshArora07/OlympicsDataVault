@@ -4,14 +4,14 @@
 
 {% block content %}
 <div class="breadcrumb-local">
-    <a href="{{ url_for('venues') }}">Venues</a> &rsaquo; Register Venue
+    <a href="{{ url_for('venues.venues') }}">Venues</a> &rsaquo; Register Venue
 </div>
 <div class="page-title">Register Venue</div>
 
 <div class="card">
     <div class="card-header">
         Venue Information
-        <a href="{{ url_for('venues') }}" class="btn btn-secondary btn-sm">&larr; Back</a>
+        <a href="{{ url_for('venues.venues') }}" class="btn btn-secondary btn-sm">&larr; Back</a>
     </div>
     <div class="card-body">
 
@@ -21,7 +21,7 @@
         </div>
         {% endif %}
 
-        <form method="POST" action="{{ url_for('register_venue') }}">
+        <form method="POST" action="{{ url_for('venues.register_venue') }}">
 
             <div class="form-section">Venue Details</div>
 
@@ -69,7 +69,7 @@
 
             <div class="mt-16">
                 <button type="submit" class="btn btn-primary">Register Venue</button>
-                <a href="{{ url_for('venues') }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ url_for('venues.venues') }}" class="btn btn-secondary">Cancel</a>
             </div>
 
         </form>

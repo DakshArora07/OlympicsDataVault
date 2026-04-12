@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="breadcrumb">
-    <a href="{{ url_for('venues') }}">Venues</a> &rsaquo;
+    <a href="{{ url_for('venues.venues') }}">Venues</a> &rsaquo;
     {{ venue.name }}
 </div>
 <div class="flex-between mb-16">
@@ -12,10 +12,10 @@
         <div class="page-subtitle">{{ venue.city }}, {{ venue.country }}</div>
     </div>
     <div style="display:flex;gap:8px;">
-        <a href="{{ url_for('edit_venue_page', venue_id=venue.venue_id) }}"
+        <a href="{{ url_for('venues.edit_venue_page', venue_id=venue.venue_id) }}"
            class="btn btn-secondary">Edit</a>
         <form method="POST"
-              action="{{ url_for('delete_venue', venue_id=venue.venue_id) }}"
+              action="{{ url_for('venues.delete_venue', venue_id=venue.venue_id) }}"
               onsubmit="return confirm('Delete {{ venue.name }}? All related events will also be deleted.')">
             <button type="submit" class="btn btn-danger">Delete</button>
         </form>
@@ -85,7 +85,7 @@
                             </span>
                         </td>
                         <td>
-                            <a href="{{ url_for('event_detail', sport=e.sport, format=e.format, gender=e.gender_category) }}"
+                            <a href="{{ url_for('events.event_detail', sport=e.sport, format=e.format, gender=e.gender_category) }}"
                                class="btn btn-secondary btn-sm">View</a>
                         </td>
                     </tr>

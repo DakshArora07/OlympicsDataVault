@@ -29,15 +29,15 @@
             <div class="sb-section">
                 <div class="sb-section-label">Overview</div>
                 <a class="sb-link {% if request.endpoint == 'index' %}active{% endif %}"
-                   href="{{ url_for('index') }}">
+                   href="{{ url_for('misc.index') }}">
                     <span class="sb-dot"></span>Dashboard
                 </a>
                 <a class="sb-link {% if request.endpoint == 'sports' %}active{% endif %}"
-                   href="{{ url_for('sports') }}">
+                   href="{{ url_for('misc.sports') }}">
                     <span class="sb-dot"></span>Sports
                 </a>
                 <a class="sb-link {% if request.endpoint == 'countries' %}active{% endif %}"
-                    href="{{ url_for('countries') }}">
+                    href="{{ url_for('misc.countries') }}">
                      <span class="sb-dot"></span>Countries
                 </a>
             </div>
@@ -45,19 +45,19 @@
             <div class="sb-section">
                 <div class="sb-section-label">Registration</div>
                 <a class="sb-link {% if 'athlete' in (request.endpoint or '') %}active{% endif %}"
-                   href="{{ url_for('athletes') }}">
+                   href="{{ url_for('athletes.athletes') }}">
                     <span class="sb-dot"></span>Athletes
                 </a>
                 <a class="sb-link {% if 'event' in (request.endpoint or '') %}active{% endif %}"
-                   href="{{ url_for('events') }}">
+                   href="{{ url_for('events.events') }}">
                     <span class="sb-dot"></span>Events
                 </a>
                 <a class="sb-link {% if request.endpoint == 'venues' %}active{% endif %}"
-                    href="{{ url_for('venues') }}">
+                    href="{{ url_for('venues.venues') }}">
                      <span class="sb-dot"></span>Venues
                 </a>
                 <a class="sb-link {% if 'team' in (request.endpoint or '') %}active{% endif %}"
-                    href="{{ url_for('teams') }}">
+                    href="{{ url_for('teams.teams') }}">
                      <span class="sb-dot"></span>Teams
                 </a>
             </div>
@@ -65,7 +65,7 @@
             <div class="sb-section">
                 <div class="sb-section-label">Results</div>
                 <a class="sb-link {% if request.endpoint == 'medals' %}active{% endif %}"
-                   href="{{ url_for('medals') }}">
+                   href="{{ url_for('misc.medals') }}">
                     <span class="sb-dot"></span>Medal Tally
                 </a>
             </div>

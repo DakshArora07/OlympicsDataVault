@@ -8,7 +8,7 @@
         <div class="page-title">Venues</div>
         <div class="page-subtitle">{{ venues|length }} venue(s) registered</div>
     </div>
-    <a href="{{ url_for('register_venue') }}" class="btn btn-primary">+ Register Venue</a>
+    <a href="{{ url_for('venues.register_venue') }}" class="btn btn-primary">+ Register Venue</a>
 </div>
 
 <div class="mb-16">
@@ -40,7 +40,7 @@
                 <td>{{ "{:,}".format(v.capacity) }}</td>
                 <td>{{ v.event_count }}</td>
                 <td>
-                    <a href="{{ url_for('venue_detail', venue_id=v.venue_id) }}"
+                    <a href="{{ url_for('venues.venue_detail', venue_id=v.venue_id) }}"
                        class="btn btn-secondary btn-sm">View</a>
                 </td>
             </tr>

@@ -131,7 +131,7 @@
                         </td>
                         <td class="text-small">{{ g.sport }}</td>
                         <td>
-                            <a href="{{ url_for('event_detail', sport=g.sport, format=g.format, gender=g.gender_category) }}" class="text-small">
+                            <a href="{{ url_for('events.event_detail', sport=g.sport, format=g.format, gender=g.gender_category) }}" class="text-small">
                                 {{ g.format }} &middot; {{ g.gender_category }}
                             </a>
                         </td>

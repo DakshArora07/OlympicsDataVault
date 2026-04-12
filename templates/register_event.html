@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="breadcrumb-local">
-    <a href="{{ url_for('events') }}">Events</a> &rsaquo; Register Event
+    <a href="{{ url_for('events.events') }}">Events</a> &rsaquo; Register Event
 </div>
 <div class="page-title">Register Event</div>
 <div class="page-subtitle">Add a new Olympic event to the database.</div>
@@ -12,7 +12,7 @@
 <div class="card">
     <div class="card-header">
         Event Information
-        <a href="{{ url_for('events') }}" class="btn btn-secondary btn-sm">&larr; Back</a>
+        <a href="{{ url_for('events.events') }}" class="btn btn-secondary btn-sm">&larr; Back</a>
     </div>
     <div class="card-body">
 
@@ -22,7 +22,7 @@
         </div>
         {% endif %}
 
-        <form method="POST" action="{{ url_for('register_event') }}">
+        <form method="POST" action="{{ url_for('events.register_event') }}">
 
             <div class="form-section">Event Details</div>
 
@@ -90,7 +90,7 @@
 
             <div class="mt-16">
                 <button type="submit" class="btn btn-primary">Register Event</button>
-                <a href="{{ url_for('events') }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ url_for('events.events') }}" class="btn btn-secondary">Cancel</a>
             </div>
 
         </form>
