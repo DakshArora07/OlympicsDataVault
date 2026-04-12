@@ -47,24 +47,109 @@ def index():
     """)
     venue_count = cursor.fetchone()['count']
 
-    #TODO: Medal Tally Query
+    cursor.execute("""
+        SELECT c.name AS country, c.flag,
+               SUM(medals.medal = 'Gold')   AS gold,
+               SUM(medals.medal = 'Silver') AS silver,
+               SUM(medals.medal = 'Bronze') AS bronze,
+               COUNT(medals.medal)          AS total
+        FROM (
+            SELECT a.country_code, ap.medal
+            FROM athlete_participation ap
+            JOIN athlete a ON ap.athlete_registration_number = a.registration_number
+            WHERE ap.medal IS NOT NULL
+
+            UNION ALL
+
+            SELECT tp.country_code, tp.medal
+            FROM team_participation tp
+            WHERE tp.medal IS NOT NULL
+        ) AS medals
+        JOIN country c ON medals.country_code = c.country_code
+        GROUP BY c.country_code, c.name, c.flag
+        ORDER BY gold DESC, silver DESC, bronze DESC
+    """)
+    medal_tally = cursor.fetchall()
 
     conn.close()
-
     return render_template('index.html',
                            athlete_count=athlete_count,
                            country_count=country_count,
                            sport_count=sport_count,
+                           medal_tally=medal_tally,
                            venue_count=venue_count
                            )
 
 @app.route("/medals")
 def medals():
-    return render_template('medals.html', title='Medals')
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
 
-@app.route("/queries")
-def queries():
-    return render_template('queries.html', title='Queries')
+    cursor.execute("""
+        SELECT c.name AS country, c.flag, c.continent,
+               SUM(medals.medal = 'Gold')   AS gold,
+               SUM(medals.medal = 'Silver') AS silver,
+               SUM(medals.medal = 'Bronze') AS bronze,
+               COUNT(medals.medal)          AS total
+        FROM (
+            SELECT a.country_code, ap.medal
+            FROM athlete_participation ap
+            JOIN athlete a ON ap.athlete_registration_number = a.registration_number
+            WHERE ap.medal IS NOT NULL
+
+            UNION ALL
+
+            SELECT tp.country_code, tp.medal
+            FROM team_participation tp
+            WHERE tp.medal IS NOT NULL
+        ) AS medals
+        JOIN country c ON medals.country_code = c.country_code
+        GROUP BY c.country_code, c.name, c.flag, c.continent
+        ORDER BY gold DESC, silver DESC, bronze DESC
+    """)
+    individual_tally = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT sport,
+               SUM(medal = 'Gold')   AS gold,
+               SUM(medal = 'Silver') AS silver,
+               SUM(medal = 'Bronze') AS bronze
+        FROM (
+            SELECT ap.sport, ap.medal
+            FROM athlete_participation ap
+            WHERE ap.medal IS NOT NULL
+
+            UNION ALL
+
+            SELECT tp.sport, tp.medal
+            FROM team_participation tp
+            WHERE tp.medal IS NOT NULL
+        ) AS all_medals
+        GROUP BY sport
+        ORDER BY gold DESC, silver DESC, bronze DESC
+    """)
+    sport_medals = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT a.first_name, a.last_name, c.name AS country, c.flag,
+               ap.sport, ap.format, ap.gender_category, g.date
+        FROM athlete_participation ap
+        JOIN athlete a ON ap.athlete_registration_number = a.registration_number
+        LEFT JOIN country c ON a.country_code = c.country_code
+        JOIN game g ON ap.sport = g.sport
+            AND ap.format = g.format
+            AND ap.gender_category = g.gender_category
+            AND ap.game_number = g.game_number
+        WHERE ap.medal = 'Gold'
+        ORDER BY g.date DESC
+    """)
+    gold_medalists = cursor.fetchall()
+
+    conn.close()
+    return render_template('medals.html',
+                           individual_tally=individual_tally,
+                           sport_medals=sport_medals,
+                           gold_medalists=gold_medalists)
 
 @app.route("/athletes")
 def athletes():
@@ -122,6 +207,22 @@ def athletes():
                            sport_filter=sport_filter,
                            gender_filter=gender_filter
                            )
+
+@app.route("/countries")
+def countries():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT c.*, COUNT(a.registration_number) AS athlete_count
+        FROM country c
+        LEFT JOIN athlete a ON c.country_code = a.country_code
+        GROUP BY c.country_code
+    """)
+    country_list = cursor.fetchall()
+
+    conn.close()
+    return render_template('countries.html', countries=country_list)
 
 @app.route("/register_athlete", methods=['GET', 'POST'])
 def register_athlete():
@@ -386,6 +487,97 @@ def register_team():
     conn.close()
     return render_template("register_team.html", countries=countries)
 
+@app.route("/teams/<int:team_id>/<country_code>")
+def team_detail(team_id, country_code):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT t.*, c.name as country_name, c.flag as country_flag
+        FROM team t
+        JOIN country c ON t.country_code = c.country_code
+        WHERE t.team_id = %s AND t.country_code = %s
+    """, (team_id, country_code))
+    team = cursor.fetchone()
+
+    if not team:
+        conn.close()
+        return redirect(url_for('teams'))
+
+    cursor.execute("""
+        SELECT mo.athlete_registration_number, a.first_name, a.last_name, a.sport 
+        FROM member_of mo
+        JOIN athlete a ON mo.athlete_registration_number = a.registration_number
+        WHERE mo.team_id = %s AND mo.country_code = %s
+        ORDER BY a.last_name, a.first_name
+    """, (team_id, country_code))
+    members = cursor.fetchall()
+
+    cursor.execute("""
+            SELECT tp.*, g.date
+            FROM team_participation tp
+            JOIN game g ON tp.sport = g.sport
+                AND tp.format = g.format
+                AND tp.gender_category = g.gender_category
+                AND tp.game_number = g.game_number
+            WHERE tp.team_id = %s AND tp.country_code = %s
+            ORDER BY g.date
+        """, (team_id, country_code))
+    participation = cursor.fetchall()
+
+    conn.close()
+    return render_template('team_detail.html',
+                           team=team,
+                           members=members,
+                           participations=participation)
+
+@app.route("/teams/<int:team_id>/<country_code>/delete", methods=["POST"])
+def delete_team(team_id, country_code):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        DELETE FROM team
+        WHERE team_id = %s AND country_code = %s
+    """, (team_id, country_code))
+
+    conn.commit()
+    conn.close()
+    return redirect(url_for('teams'))
+
+@app.route("/teams/<int:team_id>/<country_code>/edit", methods=["GET", "POST"])
+def edit_team_page(team_id, country_code):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+            SELECT t.*, c.name as country_name, c.flag as country_flag
+            FROM team t
+            JOIN country c ON t.country_code = c.country_code
+            WHERE t.team_id = %s AND t.country_code = %s
+        """, (team_id, country_code))
+    team = cursor.fetchone()
+
+    if not team:
+        conn.close()
+        return redirect(url_for('teams'))
+
+    if request.method == "POST":
+        number_of_players = request.form.get("number_of_players")
+
+        cursor.execute("""
+                UPDATE team
+                SET number_of_players = %s
+                WHERE team_id = %s AND country_code = %s
+            """, (number_of_players, team_id, country_code))
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for('team_detail', team_id=team_id, country_code=country_code))
+
+    conn.close()
+    return render_template('edit_team.html', team=team)
+
 @app.route("/events")
 def events():
     conn = get_connection()
@@ -447,28 +639,52 @@ def event_detail(sport, format, gender):
 
     # TODO: Leaderboard Query(s)
 
-    cursor.execute("""
-        SELECT registration_number, first_name, last_name
-        FROM athlete
-        WHERE sport = %s AND gender = %s
-        ORDER BY last_name, first_name
-    """, (sport, gender))
+    if gender == 'Mixed':
+        cursor.execute("""
+            SELECT registration_number, first_name, last_name, gender
+            FROM athlete
+            WHERE sport = %s
+            ORDER BY last_name, first_name
+        """, (sport,))
+    else:
+        cursor.execute("""
+            SELECT registration_number, first_name, last_name, gender
+            FROM athlete
+            WHERE sport = %s AND gender = %s
+            ORDER BY last_name, first_name
+        """, (sport, gender))
     eligible_athletes = cursor.fetchall()
 
-    cursor.execute("""
-        SELECT t.team_id, t.country_code, c.name as country_name
-        FROM team t
-        JOIN country c ON t.country_code = c.country_code
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM member_of mo
-            JOIN athlete a ON mo.athlete_registration_number = a.registration_number
-            WHERE mo.team_id = t.team_id
-              AND mo.country_code = t.country_code
-              AND (a.sport != %s OR a.gender != %s)
-        )
-        ORDER BY c.name, t.team_id
-    """, (sport, gender))
+    if gender == 'Mixed':
+        cursor.execute("""
+            SELECT t.team_id, t.country_code, c.name as country_name
+            FROM team t
+            JOIN country c ON t.country_code = c.country_code
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM member_of mo
+                JOIN athlete a ON mo.athlete_registration_number = a.registration_number
+                WHERE mo.team_id = t.team_id
+                  AND mo.country_code = t.country_code
+                  AND a.sport != %s
+            )
+            ORDER BY c.name, t.team_id
+        """, (sport,))
+    else:
+        cursor.execute("""
+            SELECT t.team_id, t.country_code, c.name as country_name
+            FROM team t
+            JOIN country c ON t.country_code = c.country_code
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM member_of mo
+                JOIN athlete a ON mo.athlete_registration_number = a.registration_number
+                WHERE mo.team_id = t.team_id
+                  AND mo.country_code = t.country_code
+                  AND (a.sport != %s OR a.gender != %s)
+            )
+            ORDER BY c.name, t.team_id
+        """, (sport, gender))
     eligible_teams = cursor.fetchall()
 
     conn.close()
@@ -506,6 +722,12 @@ def register_event():
         event_type = request.form.get("event_type")
         team_size = request.form.get("team_size") or None
 
+        if gender_category == 'Mixed' and event_type == 'Individual':
+            return render_template("register_event.html",
+                                   sports=sports_list,
+                                   venues=venue_list,
+                                   error="Individual events cannot have Mixed gender category.")
+
         cursor.execute("""
             INSERT INTO event (sport, format, gender_category, venue_id)
             VALUES (%s, %s, %s, %s)     
@@ -527,6 +749,37 @@ def register_event():
         return redirect(url_for("events"))
 
     return render_template("register_event.html", sports=sports_list, venues=venue_list)
+
+@app.route("/events/<sport>/<format>/<gender>/edit", methods=["GET"])
+def edit_event_page(sport, format, gender):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT e.*, v.venue_id
+        FROM event e
+        JOIN venue v ON e.venue_id = v.venue_id
+        WHERE e.sport = %s AND e.format = %s AND e.gender_category = %s
+    """, (sport, format, gender))
+    event = cursor.fetchone()
+    cursor.execute("SELECT venue_id, name, city FROM venue ORDER BY name")
+    venue_list = cursor.fetchall()
+    conn.close()
+    if not event:
+        return redirect(url_for('events'))
+    return render_template('edit_event.html', event=event, venues=venue_list)
+
+@app.route("/events/<sport>/<format>/<gender>/edit/save", methods=["POST"])
+def edit_event(sport, format, gender):
+    venue_id = request.form.get("venue_id")
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        UPDATE event SET venue_id = %s
+        WHERE sport = %s AND format = %s AND gender_category = %s
+    """, (venue_id, sport, format, gender))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('event_detail', sport=sport, format=format, gender=gender))
 
 @app.route("/events/<sport>/<format>/<gender>/delete", methods=["POST"])
 def delete_event(sport, format, gender):
@@ -582,6 +835,79 @@ def register_venue():
         return redirect(url_for("venues"))
 
     return render_template("register_venue.html")
+
+@app.route("/venues/<int:venue_id>")
+def venue_detail(venue_id):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT *
+        FROM venue
+        WHERE venue_id = %s
+    """, (venue_id,))
+    venue = cursor.fetchone()
+
+    if not venue:
+        conn.close()
+        return redirect(url_for('venues'))
+
+    cursor.execute("""
+        SELECT e.sport, e.format, e.gender_category,
+               IF(te.format IS NOT NULL, 'Team', 'Individual') AS event_type
+        FROM event e
+        LEFT JOIN team_event te ON e.sport = te.sport
+            AND e.format = te.format
+            AND e.gender_category = te.gender_category
+        WHERE e.venue_id = %s
+        ORDER BY e.sport, e.format
+    """, (venue_id,))
+    event_list = cursor.fetchall()
+
+    conn.close()
+    return render_template('venue_detail.html', venue=venue, events=event_list)
+
+@app.route("/venues/<int:venue_id>/edit/save", methods=["POST"])
+def edit_venue(venue_id):
+    name = request.form.get("name")
+    city = request.form.get("city")
+    country = request.form.get("country")
+    capacity = request.form.get("capacity")
+
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        UPDATE venue
+        SET name = %s, city = %s, country = %s, capacity = %s
+        WHERE venue_id = %s
+    """, (name, city, country, capacity, venue_id))
+
+    conn.commit()
+    conn.close()
+    return redirect(url_for('venue_detail', venue_id=venue_id))
+
+@app.route("/venues/<int:venue_id>/edit", methods=["GET"])
+def edit_venue_page(venue_id):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM venue WHERE venue_id = %s", (venue_id,))
+    venue = cursor.fetchone()
+    conn.close()
+    if not venue:
+        return redirect(url_for('venues'))
+    return render_template('edit_venue.html', venue=venue)
+
+@app.route("/venues/<int:venue_id>/delete", methods=["POST"])
+def delete_venue(venue_id):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("DELETE FROM venue WHERE venue_id = %s", (venue_id,))
+
+    conn.commit()
+    conn.close()
+    return redirect(url_for('venues'))
 
 @app.route("/sports")
 def sports():
