@@ -15,6 +15,11 @@
 <div class="card" style="max-width:520px;">
     <div class="card-header">Team Details</div>
     <div class="card-body">
+    {% if error %}
+<div class="flash-danger" style="margin-bottom:16px;">
+    <strong>Could not update team:</strong> {{ error }}
+</div>
+{% endif %}
         <form method="POST"
       action="{{ url_for('teams.edit_team_page', team_id=team.team_id, country_code=team.country_code) }}">
 

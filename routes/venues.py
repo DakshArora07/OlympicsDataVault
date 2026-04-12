@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from db import get_connection
+from db import get_connection, db_error_message
+import mysql.connector
 
 venues_bp = Blueprint('venues', __name__)
 
@@ -40,16 +41,29 @@ def register_venue():
         country = request.form.get("country")
         capacity = request.form.get("capacity")
 
-        cursor.execute("""
-            INSERT INTO venue (venue_id, name, city, country, capacity)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (venue_id, name, city, country, capacity))
+        try:
+            cursor.execute("""
+                        INSERT INTO venue (venue_id, name, city, country, capacity)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (venue_id, name, city, country, capacity))
 
+            conn.commit()
+            conn.close()
+            return redirect(url_for("venues.venues"))
 
-        conn.commit()
-        conn.close()
-        return redirect(url_for("venues.venues"))
+        except (mysql.connector.IntegrityError, mysql.connector.DatabaseError) as err:
+            conn.rollback()
+            error = db_error_message(err)
 
+            conn.close()
+            return render_template(
+                "register_venue.html",
+                countries=country_list,
+                error=error,
+                form=request.form
+            )
+
+    conn.close()
     return render_template("register_venue.html", countries=country_list)
 
 @venues_bp.route("/venues/<int:venue_id>")
@@ -104,15 +118,36 @@ def edit_venue_page(venue_id):
         country  = request.form.get("country")
         capacity = request.form.get("capacity")
 
-        cursor.execute("""
-            UPDATE venue
-            SET name = %s, city = %s, country = %s, capacity = %s
-            WHERE venue_id = %s
-        """, (name, city, country, capacity, venue_id))
+        try:
+            cursor.execute("""
+                        UPDATE venue
+                        SET name = %s, city = %s, country = %s, capacity = %s
+                        WHERE venue_id = %s
+                    """, (name, city, country, capacity, venue_id))
 
-        conn.commit()
-        conn.close()
-        return redirect(url_for('venues.venue_detail', venue_id=venue_id))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('venues.venue_detail', venue_id=venue_id))
+
+        except (mysql.connector.IntegrityError, mysql.connector.DatabaseError) as err:
+            conn.rollback()
+            error = db_error_message(err)
+
+            # 🔥 preserve user input
+            venue.update({
+                "name": name,
+                "city": city,
+                "country": country,
+                "capacity": capacity
+            })
+
+            conn.close()
+            return render_template(
+                'edit_venue.html',
+                venue=venue,
+                countries=countries,
+                error=error
+            )
 
     conn.close()
     return render_template('edit_venue.html', venue=venue, countries=countries)
@@ -122,8 +157,17 @@ def delete_venue(venue_id):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("DELETE FROM venue WHERE venue_id = %s", (venue_id,))
+    try:
+        cursor.execute("DELETE FROM venue WHERE venue_id = %s", (venue_id,))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('venues.venues'))
 
-    conn.commit()
-    conn.close()
-    return redirect(url_for('venues.venues'))
+    except mysql.connector.IntegrityError as err:
+        conn.rollback()
+        conn.close()
+        return redirect(url_for(
+            'venues.venue_detail',
+            venue_id=venue_id,
+            error=db_error_message(err)
+        ))

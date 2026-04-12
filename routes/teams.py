@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from db import get_connection
+from db import get_connection, db_error_message
+import mysql.connector
 
 teams_bp = Blueprint('teams', __name__)
 
@@ -81,20 +82,33 @@ def register_team():
         number_of_players = request.form.get("number_of_players")
         athlete_ids = request.form.getlist("athlete_ids")
 
-        cursor.execute("""
+        try:
+            cursor.execute("""
                         INSERT INTO team (country_code, team_id, number_of_players)
                         VALUES (%s, %s, %s)
                     """, (country_code, team_id, number_of_players))
 
-        for athlete_id in athlete_ids:
-            cursor.execute("""
+            for athlete_id in athlete_ids:
+                cursor.execute("""
                             INSERT INTO member_of (athlete_registration_number, country_code, team_id)
                             VALUES (%s, %s, %s)
                         """, (athlete_id, country_code, team_id))
 
-        conn.commit()
-        conn.close()
-        return redirect(url_for("teams.teams"))
+            conn.commit()
+            conn.close()
+            return redirect(url_for("teams.teams"))
+
+        except (mysql.connector.IntegrityError, mysql.connector.DatabaseError) as err:
+            conn.rollback()
+            error = db_error_message(err)
+
+            conn.close()
+            return render_template(
+                "register_team.html",
+                countries=countries,
+                error=error,
+                form=request.form
+            )
 
     conn.close()
     return render_template("register_team.html", countries=countries)
@@ -105,27 +119,29 @@ def edit_team_page(team_id, country_code):
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-            SELECT t.*, c.name as country_name, c.flag as country_flag
-            FROM team t
-            JOIN country c ON t.country_code = c.country_code
-            WHERE t.team_id = %s AND t.country_code = %s
-        """, (team_id, country_code))
+        SELECT t.*, c.name as country_name, c.flag as country_flag
+        FROM team t
+        JOIN country c ON t.country_code = c.country_code
+        WHERE t.team_id = %s AND t.country_code = %s
+    """, (team_id, country_code))
     team = cursor.fetchone()
 
     if not team:
         conn.close()
         return redirect(url_for('teams.teams'))
 
-    cursor.execute("""
+    def get_members():
+        cursor.execute("""
             SELECT mo.athlete_registration_number AS registration_number,
                    a.first_name, a.last_name, a.sport
             FROM member_of mo
             JOIN athlete a ON mo.athlete_registration_number = a.registration_number
             WHERE mo.team_id = %s AND mo.country_code = %s
         """, (team_id, country_code))
-    current_members = cursor.fetchall()
+        return cursor.fetchall()
 
-    cursor.execute("""
+    def get_available():
+        cursor.execute("""
             SELECT a.registration_number, a.first_name, a.last_name, a.sport
             FROM athlete a
             WHERE a.country_code = %s
@@ -135,44 +151,67 @@ def edit_team_page(team_id, country_code):
             )
             ORDER BY a.last_name, a.first_name
         """, (country_code, team_id, country_code))
-    available_athletes = cursor.fetchall()
+        return cursor.fetchall()
+
+    current_members = get_members()
+    available_athletes = get_available()
 
     if request.method == "POST":
         selected_ids = set(request.form.getlist("athlete_ids"))
         current_ids = set(str(m['registration_number']) for m in current_members)
 
-        to_add = selected_ids - current_ids
-        to_remove = current_ids - selected_ids
+        try:
+            to_add = selected_ids - current_ids
+            to_remove = current_ids - selected_ids
 
-        for athlete_id in to_remove:
+            for athlete_id in to_remove:
+                cursor.execute("""
+                    DELETE FROM member_of
+                    WHERE athlete_registration_number = %s
+                    AND team_id = %s AND country_code = %s
+                """, (athlete_id, team_id, country_code))
+
+            for athlete_id in to_add:
+                cursor.execute("""
+                    INSERT INTO member_of (athlete_registration_number, country_code, team_id)
+                    VALUES (%s, %s, %s)
+                """, (athlete_id, country_code, team_id))
+
             cursor.execute("""
-                        DELETE FROM member_of
-                        WHERE athlete_registration_number = %s
-                          AND team_id = %s AND country_code = %s
-                    """, (athlete_id, team_id, country_code))
+                UPDATE team SET number_of_players = %s
+                WHERE team_id = %s AND country_code = %s
+            """, (len(selected_ids), team_id, country_code))
 
-        for athlete_id in to_add:
-            cursor.execute("""
-                        INSERT INTO member_of (athlete_registration_number, country_code, team_id)
-                        VALUES (%s, %s, %s)
-                    """, (athlete_id, country_code, team_id))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('teams.team_detail', team_id=team_id, country_code=country_code))
 
-            # Update number_of_players to match actual member count
-        new_count = len(selected_ids)
-        cursor.execute("""
-                    UPDATE team SET number_of_players = %s
-                    WHERE team_id = %s AND country_code = %s
-                """, (new_count, team_id, country_code))
+        except (mysql.connector.IntegrityError, mysql.connector.DatabaseError) as err:
+            conn.rollback()
+            error = db_error_message(err)
 
-        conn.commit()
-        conn.close()
-        return redirect(url_for('teams.team_detail', team_id=team_id, country_code=country_code))
+            selected_ids_int = set(int(x) for x in selected_ids)
+            all_athletes = current_members + available_athletes
+
+            new_current = [a for a in all_athletes if a['registration_number'] in selected_ids_int]
+            new_available = [a for a in all_athletes if a['registration_number'] not in selected_ids_int]
+
+            conn.close()
+            return render_template(
+                'edit_team.html',
+                team=team,
+                current_members=new_current,
+                available_athletes=new_available,
+                error=error
+            )
 
     conn.close()
-    return render_template('edit_team.html',
-                           team=team,
-                           current_members=current_members,
-                           available_athletes=available_athletes)
+    return render_template(
+        'edit_team.html',
+        team=team,
+        current_members=current_members,
+        available_athletes=available_athletes
+    )
 
 @teams_bp.route("/teams/<int:team_id>/<country_code>/delete", methods=["POST"])
 def delete_team(team_id, country_code):

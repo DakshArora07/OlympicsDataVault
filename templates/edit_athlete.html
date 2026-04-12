@@ -17,6 +17,12 @@
            class="btn btn-secondary btn-sm">&larr; Cancel</a>
     </div>
     <div class="card-body">
+
+    {% if error %}
+    <div class="flash-danger" style="margin-bottom:16px;">
+        <strong>Could not update athlete:</strong> {{ error }}
+    </div>
+    {% endif %}
         <form method="POST" action="{{ url_for('athletes.edit_athlete', reg_num=athlete.registration_number) }}">
 
             <div class="form-section">Personal Details</div>

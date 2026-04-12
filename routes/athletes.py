@@ -179,6 +179,10 @@ def edit_athlete(reg_num):
     """, (reg_num,))
     selected_athlete = cursor.fetchone()
 
+    if not selected_athlete:
+        conn.close()
+        return redirect(url_for("athletes.athletes"))
+
     cursor.execute("""
         SELECT country_code, name
         FROM country
@@ -192,26 +196,10 @@ def edit_athlete(reg_num):
         ORDER BY name
     """)
     sports = [row['name'] for row in cursor.fetchall()]
-
-    if not selected_athlete:
-        conn.close()
-        return redirect(url_for("athletes.athletes"))
-
-    athlete = {
-        "registration_number": selected_athlete["registration_number"],
-        "first_name": selected_athlete["first_name"],
-        "middle_name": selected_athlete["middle_name"],
-        "last_name": selected_athlete["last_name"],
-        "date_of_birth": selected_athlete["date_of_birth"],
-        "gender": selected_athlete["gender"],
-        "email": selected_athlete["email"],
-        "height": selected_athlete["height"],
-        "weight": selected_athlete["weight"],
-        "country_code": selected_athlete["country_code"],
-        "sport": selected_athlete["sport"]
-    }
+    athlete = dict(selected_athlete)
 
     if request.method == 'POST':
+        # Get form data
         first_name = request.form.get('first_name')
         middle_name = request.form.get('middle_name') or None
         last_name = request.form.get('last_name')
@@ -237,25 +225,43 @@ def edit_athlete(reg_num):
                     country_code = %s,
                     sport = %s
                 WHERE registration_number = %s
-            """, (first_name, middle_name, last_name, date_of_birth,
-                  gender, email, height, weight, country_code, sport, reg_num))
+            """, (
+                first_name, middle_name, last_name, date_of_birth,
+                gender, email, height, weight, country_code, sport, reg_num
+            ))
 
             conn.commit()
             conn.close()
+
             return redirect(url_for("athletes.athlete_detail", reg_num=reg_num))
 
         except (mysql.connector.IntegrityError, mysql.connector.DatabaseError) as err:
             conn.rollback()
             error = db_error_message(err)
+            athlete.update({
+                "first_name": first_name,
+                "middle_name": middle_name,
+                "last_name": last_name,
+                "date_of_birth": date_of_birth,
+                "gender": gender,
+                "email": email,
+                "height": height,
+                "weight": weight,
+                "country_code": country_code,
+                "sport": sport
+            })
+
             conn.close()
+
             return render_template(
-                'edit_athlete.html',
+                "edit_athlete.html",
+                athlete=athlete,
                 countries=countries,
                 sports=sports,
-                error=error,
-                form=request.form
+                error=error
             )
 
+    conn.close()
     return render_template(
         "edit_athlete.html",
         athlete=athlete,
