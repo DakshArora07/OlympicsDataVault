@@ -29,7 +29,7 @@
             <div class="form-group">
                 <label class="form-label">Team ID *</label>
                 <input type="number" name="team_id" class="form-control"
-                       placeholder="e.g. 201" required style="max-width:200px;"
+                       placeholder="e.g. 201"  style="max-width:200px;"
                        value="{{ form.get('team_id', '') if form else '' }}">
                 <div class="form-hint">Must be unique together with the country code.</div>
             </div>
@@ -37,7 +37,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Country *</label>
-                    <select name="country_code" class="form-control" id="countrySelect" required>
+                    <select name="country_code" class="form-control" id="countrySelect" >
                         <option value="">-- Select Country --</option>
                         {% for c in countries %}
                         <option value="{{ c.country_code }}"
@@ -50,7 +50,7 @@
                 <div class="form-group">
                     <label class="form-label">Number of Players *</label>
                     <input type="number" name="number_of_players" class="form-control"
-                           id="numPlayersInput" placeholder="e.g. 11" required
+                           id="numPlayersInput" placeholder="e.g. 11" 
                            value="{{ form.get('number_of_players', '') if form else '' }}">
                     <div class="form-hint">Must match the number of athletes you select below.</div>
                 </div>

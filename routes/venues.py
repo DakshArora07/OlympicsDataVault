@@ -160,14 +160,14 @@ def delete_venue(venue_id):
     try:
         cursor.execute("DELETE FROM venue WHERE venue_id = %s", (venue_id,))
         conn.commit()
-        conn.close()
         return redirect(url_for('venues.venues'))
 
-    except mysql.connector.IntegrityError as err:
+    except (mysql.connector.IntegrityError, mysql.connector.DatabaseError) as err:
         conn.rollback()
-        conn.close()
         return redirect(url_for(
             'venues.venue_detail',
             venue_id=venue_id,
             error=db_error_message(err)
         ))
+    finally:
+        conn.close()

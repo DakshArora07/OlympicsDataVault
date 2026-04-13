@@ -28,27 +28,27 @@
             <div class="form-group">
                 <label class="form-label">Venue ID *</label>
                 <input type="number" name="venue_id" class="form-control"
-                       placeholder="e.g. 1" required min="1" style="max-width:200px;"
+                       placeholder="e.g. 1"  min="1" style="max-width:200px;"
                        value="{{ form.get('venue_id', '') if form else '' }}">
                 <div class="form-hint">Must be unique across all venues.</div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Name *</label>
-                <input type="text" name="name" class="form-control" required maxlength="50"
+                <input type="text" name="name" class="form-control"  maxlength="50"
                        value="{{ form.get('name', '') if form else '' }}">
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">City *</label>
-                    <input type="text" name="city" class="form-control" required maxlength="50"
+                    <input type="text" name="city" class="form-control"  maxlength="50"
                            value="{{ form.get('city', '') if form else '' }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Country *</label>
-                    <select name="country" class="form-control" required>
+                    <select name="country" class="form-control" >
                         <option value="">Select Country</option>
                         {% for c in countries %}
                             <option value="{{ c.country_code }}"
@@ -63,7 +63,7 @@
             <div class="form-group">
                 <label class="form-label">Capacity *</label>
                 <input type="number" name="capacity" class="form-control"
-                       placeholder="e.g. 80000" required style="max-width:200px;"
+                       placeholder="e.g. 80000"  style="max-width:200px;"
                        value="{{ form.get('capacity', '') if form else '' }}">
             </div>
 

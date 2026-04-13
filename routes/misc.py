@@ -2,14 +2,9 @@ from flask import Blueprint, render_template
 from db import get_connection
 
 misc_bp = Blueprint('misc', __name__)
-
-@misc_bp.route('/')
-@misc_bp.route("/index")
-
 @misc_bp.route('/')
 @misc_bp.route("/index")
 def index():
-
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -122,7 +117,8 @@ def medals():
 
     cursor.execute("""
         SELECT a.first_name, a.last_name, c.name AS country, c.flag,
-               ap.sport, ap.format, ap.gender_category, g.date
+               ap.sport, ap.format, ap.gender_category, g.date,
+               'Individual' AS entry_type, NULL AS team_id
         FROM athlete_participation ap
         JOIN athlete a ON ap.athlete_registration_number = a.registration_number
         LEFT JOIN country c ON a.country_code = c.country_code
@@ -131,7 +127,22 @@ def medals():
             AND ap.gender_category = g.gender_category
             AND ap.game_number = g.game_number
         WHERE ap.medal = 'Gold'
-        ORDER BY g.date DESC
+
+        UNION ALL
+
+        SELECT NULL AS first_name, NULL AS last_name,
+               c.name AS country, c.flag,
+               tp.sport, tp.format, tp.gender_category, g.date,
+               'Team' AS entry_type, tp.team_id
+        FROM team_participation tp
+        JOIN country c ON tp.country_code = c.country_code
+        JOIN game g ON tp.sport = g.sport
+            AND tp.format = g.format
+            AND tp.gender_category = g.gender_category
+            AND tp.game_number = g.game_number
+        WHERE tp.medal = 'Gold'
+
+        ORDER BY date DESC
     """)
     gold_medalists = cursor.fetchall()
 

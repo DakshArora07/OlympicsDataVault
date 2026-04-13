@@ -218,11 +218,22 @@ def delete_team(team_id, country_code):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("""
-        DELETE FROM team
-        WHERE team_id = %s AND country_code = %s
-    """, (team_id, country_code))
+    try:
+        cursor.execute("""
+            DELETE FROM team
+            WHERE team_id = %s AND country_code = %s
+        """, (team_id, country_code))
 
-    conn.commit()
-    conn.close()
-    return redirect(url_for('teams.teams'))
+        conn.commit()
+        return redirect(url_for('teams.teams'))
+
+    except mysql.connector.IntegrityError as err:
+        conn.rollback()
+        return redirect(url_for(
+            'teams.team_detail',
+            team_id=team_id,
+            country_code=country_code,
+            error=db_error_message(err)
+        ))
+    finally:
+        conn.close()

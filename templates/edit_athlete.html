@@ -31,7 +31,7 @@
                 <div class="form-group">
                     <label class="form-label">First Name *</label>
                     <input type="text" name="first_name" class="form-control"
-                           value="{{ athlete.first_name }}" required maxlength="20">
+                           value="{{ athlete.first_name }}" maxlength="20">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Middle Name</label>
@@ -41,7 +41,7 @@
                 <div class="form-group">
                     <label class="form-label">Last Name *</label>
                     <input type="text" name="last_name" class="form-control"
-                           value="{{ athlete.last_name }}" required maxlength="20">
+                           value="{{ athlete.last_name }}"  maxlength="20">
                 </div>
             </div>
 
@@ -49,11 +49,11 @@
                 <div class="form-group">
                     <label class="form-label">Date of Birth *</label>
                     <input type="date" name="date_of_birth" class="form-control"
-                           value="{{ athlete.date_of_birth }}" required>
+                           value="{{ athlete.date_of_birth }}" >
                 </div>
                 <div class="form-group">
                     <label class="form-label">Gender *</label>
-                    <select name="gender" class="form-control" required>
+                    <select name="gender" class="form-control" >
                         <option value="Male"   {% if athlete.gender == 'Male'   %}selected{% endif %}>Male</option>
                         <option value="Female" {% if athlete.gender == 'Female' %}selected{% endif %}>Female</option>
                     </select>
@@ -72,12 +72,12 @@
                 <div class="form-group">
                     <label class="form-label">Height (cm) *</label>
                     <input type="number" name="height" class="form-control"
-                           value="{{ athlete.height }}" step="0.01" required>
+                           value="{{ athlete.height }}" step="0.01" >
                 </div>
                 <div class="form-group">
                     <label class="form-label">Weight (kg) *</label>
                     <input type="number" name="weight" class="form-control"
-                           value="{{ athlete.weight }}" step="0.01" required>
+                           value="{{ athlete.weight }}" step="0.01" >
                 </div>
             </div>
 
@@ -98,7 +98,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Sport *</label>
-                    <select name="sport" class="form-control" required>
+                    <select name="sport" class="form-control" >
                         {% for s in sports %}
                         <option value="{{ s }}" {% if athlete.sport == s %}selected{% endif %}>{{ s }}</option>
                         {% endfor %}

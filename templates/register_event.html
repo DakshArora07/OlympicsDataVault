@@ -30,13 +30,13 @@
                 <div class="form-group">
                     <label class="form-label">Format / Name *</label>
                     <input type="text" name="format" class="form-control"
-                           placeholder="e.g. 100m Sprint" required maxlength="30"
+                           placeholder="e.g. 100m Sprint"  maxlength="30"
                            value="{{ form.get('format', '') if form else '' }}">
                     <div class="form-hint">This is the event's primary key — must be unique per sport and gender.</div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Gender Category *</label>
-                    <select name="gender_category" class="form-control" required id="genderSelect">
+                    <select name="gender_category" class="form-control"  id="genderSelect">
                         <option value="">-- Select --</option>
                         <option value="Male"   {% if form and form.get('gender_category') == 'Male'   %}selected{% endif %}>Male</option>
                         <option value="Female" {% if form and form.get('gender_category') == 'Female' %}selected{% endif %}>Female</option>
@@ -48,7 +48,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Sport *</label>
-                    <select name="sport" class="form-control" required>
+                    <select name="sport" class="form-control" >
                         <option value="">-- Select Sport --</option>
                         {% for s in sports %}
                         <option value="{{ s }}" {% if form and form.get('sport') == s %}selected{% endif %}>{{ s }}</option>
@@ -57,7 +57,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Venue *</label>
-                    <select name="venue_id" class="form-control" required>
+                    <select name="venue_id" class="form-control" >
                         <option value="">-- Select Venue --</option>
                         {% for v in venues %}
                         <option value="{{ v.venue_id }}" {% if form and form.get('venue_id')|string == v.venue_id|string %}selected{% endif %}>
@@ -73,7 +73,7 @@
             <div class="form-group">
                 <label class="form-label">Type *</label>
                 <select name="event_type" class="form-control" id="eventTypeSelect"
-                        style="max-width:220px;" required onchange="toggleTeamSize()">
+                        style="max-width:220px;"  onchange="toggleTeamSize()">
                     <option value="">-- Select --</option>
                     <option value="Individual" {% if form and form.get('event_type') == 'Individual' %}selected{% endif %}>Individual</option>
                     <option value="Team"       {% if form and form.get('event_type') == 'Team'       %}selected{% endif %}>Team</option>
@@ -108,11 +108,11 @@ function toggleTeamSize() {
 
     if (type === 'Team') {
         group.style.display = 'block';
-        input.required = true;
+        input. = true;
         mixedOption.style.display = '';
     } else {
         group.style.display = 'none';
-        input.required = false;
+        input. = false;
         input.value = '';
         mixedOption.style.display = 'none';
         // Reset gender if Mixed was selected

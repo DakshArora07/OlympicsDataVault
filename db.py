@@ -17,22 +17,23 @@ def get_connection():
     return mysql.connector.connect(**DB_CONFIG)
 
 def db_error_message(err):
+    errno = getattr(err, 'errno', None)
     msg = str(err)
 
-    if err.errno == 1062:
+    if errno == 1062:
         if "email" in msg.lower():
             return "That email is already in use."
         if "PRIMARY" in msg:
             return "That record already exists."
         return "A record with the same unique value already exists."
 
-    if err.errno == 1451:
+    if errno == 1451:
         return "This record cannot be deleted because other records still reference it."
 
-    if err.errno == 1452:
-        return "A referenced value is invalid or no longer exists."
+    if errno == 1452:
+        return "A referenced value (e.g. sport or country) is invalid or no longer exists."
 
-    if err.errno == 3819:
+    if errno == 3819:
         if "check_height" in msg:
             return "Height must be greater than 0 and less than 300."
         if "check_weight" in msg:
@@ -41,8 +42,14 @@ def db_error_message(err):
             return "A team must have more than 1 player."
         if "check_size" in msg:
             return "Team size must be greater than 1."
-        if "capacity" in msg.lower():
+        if "capacity_nonnegative" in msg:
             return "Capacity must be 0 or greater."
         return "A database rule was violated."
 
-    return err.msg
+    if errno == 1048:
+        return "A required field is missing."
+
+    if errno == 1406:
+        return "A value is too long for its field."
+
+    return getattr(err, 'msg', str(err))

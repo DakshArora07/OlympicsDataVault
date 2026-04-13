@@ -145,13 +145,11 @@ def register_athlete():
             ))
 
             conn.commit()
-            conn.close()
             return redirect(url_for('athletes.athletes'))
 
         except (mysql.connector.IntegrityError, mysql.connector.DatabaseError) as err:
             conn.rollback()
             error = db_error_message(err)
-            conn.close()
             return render_template(
                 'register_athlete.html',
                 countries=countries,
@@ -159,8 +157,9 @@ def register_athlete():
                 error=error,
                 form=request.form
             )
+        finally:
+            conn.close()
 
-    conn.close()
     return render_template(
         'register_athlete.html',
         countries=countries,
@@ -231,8 +230,6 @@ def edit_athlete(reg_num):
             ))
 
             conn.commit()
-            conn.close()
-
             return redirect(url_for("athletes.athlete_detail", reg_num=reg_num))
 
         except (mysql.connector.IntegrityError, mysql.connector.DatabaseError) as err:
@@ -251,8 +248,6 @@ def edit_athlete(reg_num):
                 "sport": sport
             })
 
-            conn.close()
-
             return render_template(
                 "edit_athlete.html",
                 athlete=athlete,
@@ -260,8 +255,9 @@ def edit_athlete(reg_num):
                 sports=sports,
                 error=error
             )
+        finally:
+            conn.close()
 
-    conn.close()
     return render_template(
         "edit_athlete.html",
         athlete=athlete,
@@ -299,7 +295,6 @@ def delete_athlete(reg_num):
         """)
 
         conn.commit()
-        conn.close()
         return redirect(url_for('athletes.athletes'))
 
     except mysql.connector.IntegrityError as err:

@@ -25,16 +25,16 @@
             <div class="form-group">
                 <label class="form-label">Name *</label>
                 <input type="text" name="name" class="form-control"
-                       value="{{ venue.name }}" required maxlength="100">
+                       value="{{ venue.name }}"  maxlength="100">
             </div>
             <div class="form-group">
                 <label class="form-label">City *</label>
                 <input type="text" name="city" class="form-control"
-                       value="{{ venue.city }}" required maxlength="60">
+                       value="{{ venue.city }}"  maxlength="60">
             </div>
             <div class="form-group">
                 <label class="form-label">Country *</label>
-                <select name="country" class="form-control" required>
+                <select name="country" class="form-control" >
                     <option value="">-- Select Country --</option>
                     {% for c in countries %}
                     <option value="{{ c.country_code }}"
@@ -47,7 +47,7 @@
             <div class="form-group">
                 <label class="form-label">Capacity *</label>
                 <input type="number" name="capacity" class="form-control"
-                       value="{{ venue.capacity }}" required>
+                       value="{{ venue.capacity }}" >
             </div>
             <div style="display:flex;gap:8px;margin-top:8px;">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
