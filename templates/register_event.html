@@ -108,11 +108,11 @@ function toggleTeamSize() {
 
     if (type === 'Team') {
         group.style.display = 'block';
-        input. = true;
+        input.required = true;
         mixedOption.style.display = '';
     } else {
         group.style.display = 'none';
-        input. = false;
+        input.required = false;
         input.value = '';
         mixedOption.style.display = 'none';
         // Reset gender if Mixed was selected
