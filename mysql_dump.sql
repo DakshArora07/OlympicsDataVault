@@ -46,6 +46,119 @@ CREATE TABLE `athlete` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `athlete`
+--
+
+LOCK TABLES `athlete` WRITE;
+/*!40000 ALTER TABLE `athlete` DISABLE KEYS */;
+INSERT INTO `athlete` (`registration_number`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `email`, `gender`, `height`, `weight`, `country_code`, `sport`) VALUES
+(1, 'Novak',      NULL,    'Djokovic',    '1987-05-22', 'djokovic@tennis.com',    'Male',   188.00, 77.00, 'SRB', 'Tennis'),
+(2, 'Carlos',     NULL,    'Alcaraz',     '2003-05-05', 'alcaraz@tennis.com',     'Male',   185.00, 79.00, 'ESP', 'Tennis'),
+(3, 'Lorenzo',    NULL,    'Musetti',     '2002-03-03', 'musetti@tennis.com',     'Male',   182.00, 75.00, 'ITA', 'Tennis'),
+(4, 'Felix',      'Auger', 'Aliassime',   '2000-08-08', 'faa@tennis.com',         'Male',   193.00, 88.00, 'CAN', 'Tennis'),
+(5, 'Zheng',      NULL,    'Qinwen',      '2002-10-10', 'zheng@tennis.com',       'Female', 179.00, 67.00, 'CHN', 'Tennis'),
+(6, 'Donna',      NULL,    'Vekic',       '1996-06-28', 'vekic@tennis.com',       'Female', 180.00, 68.00, 'CRO', 'Tennis'),
+(7, 'Iga',        NULL,    'Swiatek',     '2001-05-31', 'swiatek@tennis.com',     'Female', 175.00, 65.00, 'POL', 'Tennis'),
+(8, 'Coco',       NULL,    'Gauff',       '2004-03-13', 'gauff@tennis.com',       'Female', 180.00, 68.00, 'USA', 'Tennis'),
+(9,  'Tomas',     NULL,    'Machac',      '1996-05-13', 'machac@tennis.com',      'Male',   193.00, 85.00, 'CZE', 'Tennis'),
+(10, 'Katerina',  NULL,    'Siniakova',   '1996-03-10', 'siniakova@tennis.com',   'Female', 171.00, 62.00, 'CZE', 'Tennis'),
+(11, 'Zhang',     NULL,    'Zhizhen',     '1997-10-27', 'zhangzhizhen@tennis.com','Male',   191.00, 82.00, 'CHN', 'Tennis'),
+(12, 'Wang',      NULL,    'Xinyu',       '2000-10-08', 'wangxinyu@tennis.com',   'Female', 168.00, 60.00, 'CHN', 'Tennis'),
+(13, 'Gabriela',  NULL,    'Dabrowski',   '1993-09-11', 'dabrowski@tennis.com',   'Female', 175.00, 65.00, 'CAN', 'Tennis'),
+(14, 'Wesley',    NULL,    'Koolhof',     '1993-09-13', 'koolhof@tennis.com',     'Male',   185.00, 80.00, 'NED', 'Tennis'),
+(15, 'Demi',      NULL,    'Schuurs',     '1999-04-04', 'schuurs@tennis.com',     'Female', 174.00, 64.00, 'NED', 'Tennis'),
+(16, 'Pirmin',    NULL,    'Blaak',       '1997-02-11', 'pblaak@ned.hockey',      'Male',   190.00, 85.00, 'NED', 'Field Hockey'),
+(17, 'Thierry',   NULL,    'Brinkman',    '1998-11-16', 'tbrinkman@ned.hockey',   'Male',   181.00, 76.00, 'NED', 'Field Hockey'),
+(18, 'Jorrit',    NULL,    'Croon',       '1997-06-22', 'jcroon@ned.hockey',      'Male',   180.00, 75.00, 'NED', 'Field Hockey'),
+(19, 'Jip',       NULL,    'Janssen',     '1999-03-14', 'jjanssen@ned.hockey',    'Male',   178.00, 74.00, 'NED', 'Field Hockey'),
+(20, 'Seve',      NULL,    'Van Ass',     '1994-04-08', 'svanass@ned.hockey',     'Male',   182.00, 77.00, 'NED', 'Field Hockey'),
+(21, 'Jonas',     NULL,    'de Geus',     '1999-01-09', 'jdegeus@ned.hockey',     'Male',   179.00, 76.00, 'NED', 'Field Hockey'),
+(22, 'Lars',      NULL,    'Balk',        '2000-05-20', 'lbalk@ned.hockey',       'Male',   183.00, 78.00, 'NED', 'Field Hockey'),
+(23, 'Florent',   NULL,    'van Aubel',   '1993-06-30', 'fvanaubel@ned.hockey',   'Male',   176.00, 73.00, 'NED', 'Field Hockey'),
+(24, 'Glenn',     NULL,    'Schuurman',   '1998-09-17', 'gschuurman@ned.hockey',  'Male',   185.00, 80.00, 'NED', 'Field Hockey'),
+(25, 'Duco',      NULL,    'Telgenkamp',  '2002-03-11', 'dtelgenkamp@ned.hockey', 'Male',   187.00, 82.00, 'NED', 'Field Hockey'),
+(26, 'Thijs',     NULL,    'van Dam',     '1997-08-05', 'tvandam@ned.hockey',     'Male',   180.00, 76.00, 'NED', 'Field Hockey'),
+(27, 'Mats',      NULL,    'Grambusch',   '1997-01-19', 'mgrambusch@ger.hockey',  'Male',   182.00, 78.00, 'GER', 'Field Hockey'),
+(28, 'Christopher',NULL,   'Ruhr',        '1993-12-17', 'cruhr@ger.hockey',       'Male',   178.00, 74.00, 'GER', 'Field Hockey'),
+(29, 'Gonzalo',   NULL,    'Peillat',     '1992-06-20', 'gpeillat@ger.hockey',    'Male',   180.00, 76.00, 'GER', 'Field Hockey'),
+(30, 'Tom',       NULL,    'Grambusch',   '1997-01-19', 'tgrambusch@ger.hockey',  'Male',   181.00, 77.00, 'GER', 'Field Hockey'),
+(31, 'Jean-Paul', NULL,    'Danneberg',   '1994-09-03', 'jpdanneberg@ger.hockey', 'Male',   188.00, 84.00, 'GER', 'Field Hockey'),
+(32, 'Niklas',    NULL,    'Wellen',      '1998-02-13', 'nwellen@ger.hockey',     'Male',   183.00, 79.00, 'GER', 'Field Hockey'),
+(33, 'Martin',    NULL,    'Zwicker',     '1998-06-21', 'mzwicker@ger.hockey',    'Male',   179.00, 75.00, 'GER', 'Field Hockey'),
+(34, 'Hannes',    NULL,    'Muller',      '2000-04-15', 'hmuller@ger.hockey',     'Male',   177.00, 73.00, 'GER', 'Field Hockey'),
+(35, 'Timur',     NULL,    'Oruz',        '1997-11-30', 'toruz@ger.hockey',       'Male',   180.00, 76.00, 'GER', 'Field Hockey'),
+(36, 'Elian',     NULL,    'Mazkev',      '2001-07-22', 'emazkev@ger.hockey',     'Male',   182.00, 78.00, 'GER', 'Field Hockey'),
+(37, 'Marco',     NULL,    'Miltkau',     '1996-05-08', 'mmiltkau@ger.hockey',    'Male',   181.00, 77.00, 'GER', 'Field Hockey'),
+(38, 'PR',        NULL,    'Sreejesh',    '1988-05-08', 'prsreejesh@ind.hockey',  'Male',   185.00, 80.00, 'IND', 'Field Hockey'),
+(39, 'Harmanpreet',NULL,   'Singh',       '1996-06-06', 'hsingh@ind.hockey',      'Male',   180.00, 78.00, 'IND', 'Field Hockey'),
+(40, 'Hardik',    NULL,    'Singh',       '1999-07-25', 'hardiksingh@ind.hockey', 'Male',   177.00, 74.00, 'IND', 'Field Hockey'),
+(41, 'Manpreet',  NULL,    'Singh',       '1992-06-26', 'manpreets@ind.hockey',   'Male',   175.00, 72.00, 'IND', 'Field Hockey'),
+(42, 'Amit',      NULL,    'Rohidas',     '1994-01-15', 'arohidas@ind.hockey',    'Male',   173.00, 71.00, 'IND', 'Field Hockey'),
+(43, 'Jarmanpreet',NULL,   'Singh',       '2000-04-03', 'jsingh@ind.hockey',      'Male',   178.00, 75.00, 'IND', 'Field Hockey'),
+(44, 'Sukhjeet',  NULL,    'Singh',       '1997-09-12', 'sukhjeet@ind.hockey',    'Male',   174.00, 72.00, 'IND', 'Field Hockey'),
+(45, 'Raj Kumar', NULL,    'Pal',         '1998-02-22', 'rkpal@ind.hockey',       'Male',   172.00, 70.00, 'IND', 'Field Hockey'),
+(46, 'Abhishek',  NULL,    'Sharma',      '2001-08-17', 'absharma@ind.hockey',    'Male',   176.00, 73.00, 'IND', 'Field Hockey'),
+(47, 'Sumit',     NULL,    'Walmiki',     '1995-05-18', 'swalmiki@ind.hockey',    'Male',   175.00, 72.00, 'IND', 'Field Hockey'),
+(48, 'Vivek',     NULL,    'Sagar',       '1999-11-10', 'vsagar@ind.hockey',      'Male',   171.00, 69.00, 'IND', 'Field Hockey'),
+(49, 'Marc',      NULL,    'Miralles',    '1994-09-11', 'mmiralles@esp.hockey',   'Male',   178.00, 74.00, 'ESP', 'Field Hockey'),
+(50, 'Alvaro',    NULL,    'Iglesias',    '1988-03-28', 'aiglesias@esp.hockey',   'Male',   176.00, 73.00, 'ESP', 'Field Hockey'),
+(51, 'Joaquin',   NULL,    'Menini',      '1988-07-15', 'jmenini@esp.hockey',     'Male',   177.00, 74.00, 'ESP', 'Field Hockey'),
+(52, 'Josep',     NULL,    'Romeu',       '1993-12-04', 'jromeu@esp.hockey',      'Male',   179.00, 76.00, 'ESP', 'Field Hockey'),
+(53, 'Pau',       NULL,    'Quemada',     '1997-08-21', 'pquemada@esp.hockey',    'Male',   180.00, 77.00, 'ESP', 'Field Hockey'),
+(54, 'David',     NULL,    'Alegre',      '1994-05-10', 'dalegre@esp.hockey',     'Male',   175.00, 72.00, 'ESP', 'Field Hockey'),
+(55, 'Alex',      NULL,    'Casasayas',   '1999-02-18', 'acasasayas@esp.hockey',  'Male',   177.00, 74.00, 'ESP', 'Field Hockey'),
+(56, 'Enrique',   NULL,    'Gonzalez',    '1995-11-03', 'egonzalez@esp.hockey',   'Male',   178.00, 75.00, 'ESP', 'Field Hockey'),
+(57, 'Quico',     NULL,    'Cortes',      '1992-06-14', 'qcortes@esp.hockey',     'Male',   181.00, 78.00, 'ESP', 'Field Hockey'),
+(58, 'Jose',      NULL,    'Basterra',    '1997-01-22', 'jbasterra@esp.hockey',   'Male',   176.00, 73.00, 'ESP', 'Field Hockey'),
+(59, 'Lluis',     NULL,    'Dolcet',      '2000-09-05', 'ldolcet@esp.hockey',     'Male',   179.00, 76.00, 'ESP', 'Field Hockey'),
+(60, 'Anne',      NULL,    'Veenendaal',  '1991-05-03', 'aveenendaal@ned.hockey', 'Female', 175.00, 68.00, 'NED', 'Field Hockey'),
+(61, 'Felice',    NULL,    'Albers',      '2002-03-03', 'falbers@ned.hockey',     'Female', 172.00, 65.00, 'NED', 'Field Hockey'),
+(62, 'Maria',     NULL,    'Verschoor',   '1995-08-29', 'mverschoor@ned.hockey',  'Female', 170.00, 64.00, 'NED', 'Field Hockey'),
+(63, 'Xan',       NULL,    'de Waard',    '1997-02-10', 'xdewaard@ned.hockey',    'Female', 168.00, 62.00, 'NED', 'Field Hockey'),
+(64, 'Frederique',NULL,    'Matla',       '1994-05-12', 'fmatla@ned.hockey',      'Female', 171.00, 63.00, 'NED', 'Field Hockey'),
+(65, 'Pien',      NULL,    'Sanders',     '1999-07-11', 'psanders@ned.hockey',    'Female', 169.00, 63.00, 'NED', 'Field Hockey'),
+(66, 'Yibbi',     NULL,    'Jansen',      '1998-09-25', 'yjansen@ned.hockey',     'Female', 167.00, 61.00, 'NED', 'Field Hockey'),
+(67, 'Laura',     NULL,    'Nunnink',     '2001-06-18', 'lnunnink@ned.hockey',    'Female', 170.00, 64.00, 'NED', 'Field Hockey'),
+(68, 'Sanne',     NULL,    'Koolen',      '1995-03-22', 'skoleen@ned.hockey',     'Female', 166.00, 61.00, 'NED', 'Field Hockey'),
+(69, 'Luna',      NULL,    'Fokke',       '2002-11-07', 'lfokke@ned.hockey',      'Female', 168.00, 62.00, 'NED', 'Field Hockey'),
+(70, 'Renee',     NULL,    'van Laarhoven','1998-04-14','rvanlaarhoven@ned.hockey','Female', 172.00, 65.00, 'NED', 'Field Hockey'),
+(71, 'Chen',      NULL,    'Yi',          '1997-04-10', 'chenyi@chn.hockey',      'Female', 168.00, 60.00, 'CHN', 'Field Hockey'),
+(72, 'Wu',        NULL,    'Zimeng',      '1998-06-15', 'wuzimeng@chn.hockey',    'Female', 165.00, 58.00, 'CHN', 'Field Hockey'),
+(73, 'Liu',       NULL,    'Hui',         '1996-03-22', 'liuhui@chn.hockey',      'Female', 167.00, 60.00, 'CHN', 'Field Hockey'),
+(74, 'Zhang',     NULL,    'Yining',      '1999-08-05', 'zhangyining@chn.hockey', 'Female', 166.00, 59.00, 'CHN', 'Field Hockey'),
+(75, 'Ye',        NULL,    'Jiaojiao',    '2000-01-12', 'yejiaojiao@chn.hockey',  'Female', 164.00, 57.00, 'CHN', 'Field Hockey'),
+(76, 'Liang',     NULL,    'Meiyu',       '1997-11-28', 'liangmeiyu@chn.hockey',  'Female', 168.00, 61.00, 'CHN', 'Field Hockey'),
+(77, 'Song',      NULL,    'Yanzhu',      '2001-04-17', 'songyanzhu@chn.hockey',  'Female', 165.00, 58.00, 'CHN', 'Field Hockey'),
+(78, 'Gu',        NULL,    'Bingfeng',    '1998-09-30', 'gubingfeng@chn.hockey',  'Female', 163.00, 57.00, 'CHN', 'Field Hockey'),
+(79, 'Sun',       NULL,    'Li',          '2000-07-22', 'sunli@chn.hockey',       'Female', 167.00, 60.00, 'CHN', 'Field Hockey'),
+(80, 'Sheng',     NULL,    'Jiajia',      '1999-03-08', 'shengjiajia@chn.hockey', 'Female', 164.00, 58.00, 'CHN', 'Field Hockey'),
+(81, 'Li',        NULL,    'Danyang',     '2002-05-19', 'lidanyang@chn.hockey',   'Female', 166.00, 59.00, 'CHN', 'Field Hockey'),
+(82, 'Valentina', NULL,    'Raposo',      '2002-03-09', 'vraposo@arg.hockey',     'Female', 170.00, 63.00, 'ARG', 'Field Hockey'),
+(83, 'Augustina', NULL,    'Gorzelany',   '1994-08-12', 'agorzelany@arg.hockey',  'Female', 167.00, 61.00, 'ARG', 'Field Hockey'),
+(84, 'Victoria',  NULL,    'Granatto',    '1997-04-25', 'vgranatto@arg.hockey',   'Female', 169.00, 62.00, 'ARG', 'Field Hockey'),
+(85, 'Julieta',   NULL,    'Jankunas',    '1999-11-03', 'jjankunas@arg.hockey',   'Female', 168.00, 62.00, 'ARG', 'Field Hockey'),
+(86, 'Sofia',     NULL,    'Toccalino',   '1998-06-18', 'stoccalino@arg.hockey',  'Female', 165.00, 60.00, 'ARG', 'Field Hockey'),
+(87, 'Emilia',    NULL,    'Forcherio',   '2001-09-14', 'eforcherio@arg.hockey',  'Female', 166.00, 61.00, 'ARG', 'Field Hockey'),
+(88, 'Luciana',   NULL,    'Mendez',      '1996-02-28', 'lmendez@arg.hockey',     'Female', 168.00, 62.00, 'ARG', 'Field Hockey'),
+(89, 'Trinidad',  NULL,    'Genetino',    '1997-07-07', 'tgenetino@arg.hockey',   'Female', 170.00, 63.00, 'ARG', 'Field Hockey'),
+(90, 'Agustina',  NULL,    'Albertarrio', '2000-03-21', 'aalbertarrio@arg.hockey','Female', 167.00, 61.00, 'ARG', 'Field Hockey'),
+(91, 'Julieta',   NULL,    'Castellotti', '1994-12-10', 'jcastellotti@arg.hockey','Female', 171.00, 64.00, 'ARG', 'Field Hockey'),
+(92, 'Micaela',   NULL,    'Retegui',     '1999-08-30', 'mretegui@arg.hockey',    'Female', 169.00, 63.00, 'ARG', 'Field Hockey'),
+(93,  'Stephanie',NULL,    'Vanden Borre','1998-05-15', 'svandenborre@bel.hockey','Female', 171.00, 64.00, 'BEL', 'Field Hockey'),
+(94,  'Aisling',  NULL,    'd''Hooghe',   '1992-03-10', 'adhooghe@bel.hockey',    'Female', 168.00, 62.00, 'BEL', 'Field Hockey'),
+(95,  'Barbara',  NULL,    'Nelen',       '1995-08-22', 'bnelen@bel.hockey',      'Female', 166.00, 60.00, 'BEL', 'Field Hockey'),
+(96,  'Tiphaine', NULL,    'Duquesne',    '1997-11-18', 'tduquesne@bel.hockey',   'Female', 169.00, 63.00, 'BEL', 'Field Hockey'),
+(97,  'Lien',     NULL,    'Hillewaert',  '1994-06-05', 'lhillewaert@bel.hockey', 'Female', 167.00, 61.00, 'BEL', 'Field Hockey'),
+(98,  'Alix',     NULL,    'Gerniers',    '1998-09-14', 'agerniers@bel.hockey',   'Female', 165.00, 60.00, 'BEL', 'Field Hockey'),
+(99,  'Elena',    NULL,    'Sotgiu',      '2000-04-27', 'esotgiu@bel.hockey',     'Female', 168.00, 62.00, 'BEL', 'Field Hockey'),
+(100, 'Judith',   NULL,    'Vandermeiren','1996-01-19', 'jvandermeiren@bel.hockey','Female',170.00, 64.00, 'BEL', 'Field Hockey'),
+(101, 'Delphine', NULL,    'Marien',      '1993-07-30', 'dmarien@bel.hockey',     'Female', 167.00, 61.00, 'BEL', 'Field Hockey'),
+(102, 'Pauline',  NULL,    'Leclef',      '2001-02-11', 'pleclef@bel.hockey',     'Female', 166.00, 60.00, 'BEL', 'Field Hockey'),
+(103, 'Charlotte',NULL,    'Englebert',   '1999-10-23', 'cenglebert@bel.hockey',  'Female', 169.00, 63.00, 'BEL', 'Field Hockey');
+/*!40000 ALTER TABLE `athlete` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `athlete_participation`
 --
 
@@ -65,6 +178,32 @@ CREATE TABLE `athlete_participation` (
   CONSTRAINT `fk_athlete_participation_game_full` FOREIGN KEY (`sport`, `format`, `gender_category`, `game_number`) REFERENCES `game` (`sport`, `format`, `gender_category`, `game_number`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `athlete_participation`
+--
+
+LOCK TABLES `athlete_participation` WRITE;
+/*!40000 ALTER TABLE `athlete_participation` DISABLE KEYS */;
+INSERT INTO `athlete_participation` (`athlete_registration_number`, `sport`, `format`, `gender_category`, `game_number`, `score`, `medal`) VALUES
+(1, 'Tennis', 'Singles', 'Male', 'SEMI FINAL 1', 2.00, NULL),
+(2, 'Tennis', 'Singles', 'Male', 'SEMI FINAL 1', 0.00, NULL),
+(3, 'Tennis', 'Singles', 'Male', 'SEMI FINAL 2', 2.00, NULL),
+(4, 'Tennis', 'Singles', 'Male', 'SEMI FINAL 2', 1.00, NULL),
+(3, 'Tennis', 'Singles', 'Male', 'BRONZE MATCH', 2.00, 'Bronze'),
+(4, 'Tennis', 'Singles', 'Male', 'BRONZE MATCH', 1.00, NULL),
+(1, 'Tennis', 'Singles', 'Male', 'FINAL', 2.00, 'Gold'),
+(2, 'Tennis', 'Singles', 'Male', 'FINAL', 0.00, 'Silver'),
+(5, 'Tennis', 'Singles', 'Female', 'SEMI FINAL 1', 2.00, NULL),
+(8, 'Tennis', 'Singles', 'Female', 'SEMI FINAL 1', 0.00, NULL),
+(6, 'Tennis', 'Singles', 'Female', 'SEMI FINAL 2', 2.00, NULL),
+(7, 'Tennis', 'Singles', 'Female', 'SEMI FINAL 2', 1.00, NULL),
+(7, 'Tennis', 'Singles', 'Female', 'BRONZE MATCH', 2.00, 'Bronze'),
+(8, 'Tennis', 'Singles', 'Female', 'BRONZE MATCH', 0.00, NULL),
+(5, 'Tennis', 'Singles', 'Female', 'FINAL', 2.00, 'Gold'),
+(6, 'Tennis', 'Singles', 'Female', 'FINAL', 1.00, 'Silver');
+/*!40000 ALTER TABLE `athlete_participation` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `country`
@@ -324,6 +463,21 @@ CREATE TABLE `event` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `event`
+--
+
+LOCK TABLES `event` WRITE;
+/*!40000 ALTER TABLE `event` DISABLE KEYS */;
+INSERT INTO `event` (`sport`, `format`, `gender_category`, `venue_id`) VALUES
+('Tennis',       'Singles',        'Male',   1),
+('Tennis',       'Singles',        'Female', 1),
+('Tennis',       'Mixed Doubles',  'Mixed',  1),
+('Field Hockey', 'Tournament',     'Male',   2),
+('Field Hockey', 'Tournament',     'Female', 2);
+/*!40000 ALTER TABLE `event` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `game`
 --
 
@@ -342,6 +496,36 @@ CREATE TABLE `game` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `game`
+--
+
+LOCK TABLES `game` WRITE;
+/*!40000 ALTER TABLE `game` DISABLE KEYS */;
+INSERT INTO `game` (`sport`, `format`, `gender_category`, `game_number`, `date`) VALUES
+('Tennis', 'Singles', 'Male', 'SEMI FINAL 1', '2024-08-01'),
+('Tennis', 'Singles', 'Male', 'SEMI FINAL 2', '2024-08-01'),
+('Tennis', 'Singles', 'Male', 'BRONZE MATCH', '2024-08-03'),
+('Tennis', 'Singles', 'Male', 'FINAL',        '2024-08-04'),
+('Tennis', 'Singles', 'Female', 'SEMI FINAL 1', '2024-08-01'),
+('Tennis', 'Singles', 'Female', 'SEMI FINAL 2', '2024-08-01'),
+('Tennis', 'Singles', 'Female', 'BRONZE MATCH', '2024-08-03'),
+('Tennis', 'Singles', 'Female', 'FINAL',        '2024-08-03'),
+('Tennis', 'Mixed Doubles', 'Mixed', 'SEMI FINAL 1', '2024-08-02'),
+('Tennis', 'Mixed Doubles', 'Mixed', 'SEMI FINAL 2', '2024-08-02'),
+('Tennis', 'Mixed Doubles', 'Mixed', 'BRONZE MATCH', '2024-08-04'),
+('Tennis', 'Mixed Doubles', 'Mixed', 'FINAL',        '2024-08-04'),
+('Field Hockey', 'Tournament', 'Male', 'SEMI FINAL 1', '2024-08-06'),
+('Field Hockey', 'Tournament', 'Male', 'SEMI FINAL 2', '2024-08-06'),
+('Field Hockey', 'Tournament', 'Male', 'BRONZE MATCH', '2024-08-08'),
+('Field Hockey', 'Tournament', 'Male', 'FINAL',        '2024-08-08'),
+('Field Hockey', 'Tournament', 'Female', 'SEMI FINAL 1', '2024-08-06'),
+('Field Hockey', 'Tournament', 'Female', 'SEMI FINAL 2', '2024-08-06'),
+('Field Hockey', 'Tournament', 'Female', 'BRONZE MATCH', '2024-08-09'),
+('Field Hockey', 'Tournament', 'Female', 'FINAL',        '2024-08-09');
+/*!40000 ALTER TABLE `game` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `individual_event`
 --
 
@@ -356,6 +540,18 @@ CREATE TABLE `individual_event` (
   CONSTRAINT `fk_individual_event_full` FOREIGN KEY (`sport`, `format`, `gender_category`) REFERENCES `event` (`sport`, `format`, `gender_category`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `individual_event`
+--
+
+LOCK TABLES `individual_event` WRITE;
+/*!40000 ALTER TABLE `individual_event` DISABLE KEYS */;
+INSERT INTO `individual_event` (`sport`, `format`, `gender_category`) VALUES
+('Tennis', 'Singles', 'Male'),
+('Tennis', 'Singles', 'Female');
+/*!40000 ALTER TABLE `individual_event` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `member_of`
@@ -375,6 +571,112 @@ CREATE TABLE `member_of` (
   CONSTRAINT `fk_member_of_team_full` FOREIGN KEY (`team_id`, `country_code`) REFERENCES `team` (`team_id`, `country_code`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `member_of`
+--
+
+LOCK TABLES `member_of` WRITE;
+/*!40000 ALTER TABLE `member_of` DISABLE KEYS */;
+INSERT INTO `member_of` (`athlete_registration_number`, `country_code`, `team_id`) VALUES
+(9,  'CZE', 9),
+(10, 'CZE', 9),
+(11, 'CHN', 10),
+(12, 'CHN', 10),
+(4,  'CAN', 11),
+(13, 'CAN', 11),
+(14, 'NED', 12),
+(15, 'NED', 12),
+(16, 'NED', 1),
+(17, 'NED', 1),
+(18, 'NED', 1),
+(19, 'NED', 1),
+(20, 'NED', 1),
+(21, 'NED', 1),
+(22, 'NED', 1),
+(23, 'NED', 1),
+(24, 'NED', 1),
+(25, 'NED', 1),
+(26, 'NED', 1),
+(27, 'GER', 2),
+(28, 'GER', 2),
+(29, 'GER', 2),
+(30, 'GER', 2),
+(31, 'GER', 2),
+(32, 'GER', 2),
+(33, 'GER', 2),
+(34, 'GER', 2),
+(35, 'GER', 2),
+(36, 'GER', 2),
+(37, 'GER', 2),
+(38, 'IND', 3),
+(39, 'IND', 3),
+(40, 'IND', 3),
+(41, 'IND', 3),
+(42, 'IND', 3),
+(43, 'IND', 3),
+(44, 'IND', 3),
+(45, 'IND', 3),
+(46, 'IND', 3),
+(47, 'IND', 3),
+(48, 'IND', 3),
+(49, 'ESP', 4),
+(50, 'ESP', 4),
+(51, 'ESP', 4),
+(52, 'ESP', 4),
+(53, 'ESP', 4),
+(54, 'ESP', 4),
+(55, 'ESP', 4),
+(56, 'ESP', 4),
+(57, 'ESP', 4),
+(58, 'ESP', 4),
+(59, 'ESP', 4),
+(60, 'NED', 5),
+(61, 'NED', 5),
+(62, 'NED', 5),
+(63, 'NED', 5),
+(64, 'NED', 5),
+(65, 'NED', 5),
+(66, 'NED', 5),
+(67, 'NED', 5),
+(68, 'NED', 5),
+(69, 'NED', 5),
+(70, 'NED', 5),
+(71, 'CHN', 6),
+(72, 'CHN', 6),
+(73, 'CHN', 6),
+(74, 'CHN', 6),
+(75, 'CHN', 6),
+(76, 'CHN', 6),
+(77, 'CHN', 6),
+(78, 'CHN', 6),
+(79, 'CHN', 6),
+(80, 'CHN', 6),
+(81, 'CHN', 6),
+(82, 'ARG', 7),
+(83, 'ARG', 7),
+(84, 'ARG', 7),
+(85, 'ARG', 7),
+(86, 'ARG', 7),
+(87, 'ARG', 7),
+(88, 'ARG', 7),
+(89, 'ARG', 7),
+(90, 'ARG', 7),
+(91, 'ARG', 7),
+(92, 'ARG', 7),
+(93,  'BEL', 8),
+(94,  'BEL', 8),
+(95,  'BEL', 8),
+(96,  'BEL', 8),
+(97,  'BEL', 8),
+(98,  'BEL', 8),
+(99,  'BEL', 8),
+(100, 'BEL', 8),
+(101, 'BEL', 8),
+(102, 'BEL', 8),
+(103, 'BEL', 8);
+/*!40000 ALTER TABLE `member_of` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `sport`
@@ -451,6 +753,28 @@ CREATE TABLE `team` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `team`
+--
+
+LOCK TABLES `team` WRITE;
+/*!40000 ALTER TABLE `team` DISABLE KEYS */;
+INSERT INTO `team` (`team_id`, `country_code`, `number_of_players`) VALUES
+(1,  'NED', 11),
+(2,  'GER', 11),
+(3,  'IND', 11),
+(4,  'ESP', 11),
+(5,  'NED', 11),
+(6,  'CHN', 11),
+(7,  'ARG', 11),
+(8,  'BEL', 11),
+(9,  'CZE', 2),
+(10, 'CHN', 2),
+(11, 'CAN', 2),
+(12, 'NED', 2);
+/*!40000 ALTER TABLE `team` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `team_event`
 --
 
@@ -467,6 +791,19 @@ CREATE TABLE `team_event` (
   CONSTRAINT `check_size` CHECK ((`team_size` > 1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `team_event`
+--
+
+LOCK TABLES `team_event` WRITE;
+/*!40000 ALTER TABLE `team_event` DISABLE KEYS */;
+INSERT INTO `team_event` (`sport`, `format`, `gender_category`, `team_size`) VALUES
+('Tennis',       'Mixed Doubles', 'Mixed',  2),
+('Field Hockey', 'Tournament',    'Male',   11),
+('Field Hockey', 'Tournament',    'Female', 11);
+/*!40000 ALTER TABLE `team_event` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `team_participation`
@@ -492,6 +829,40 @@ CREATE TABLE `team_participation` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `team_participation`
+--
+
+LOCK TABLES `team_participation` WRITE;
+/*!40000 ALTER TABLE `team_participation` DISABLE KEYS */;
+INSERT INTO `team_participation` (`country_code`, `team_id`, `sport`, `format`, `gender_category`, `game_number`, `score`, `medal`) VALUES
+('CZE', 9,  'Tennis', 'Mixed Doubles', 'Mixed', 'SEMI FINAL 1', 2.00, NULL),
+('NED', 12, 'Tennis', 'Mixed Doubles', 'Mixed', 'SEMI FINAL 1', 0.00, NULL),
+('CHN', 10, 'Tennis', 'Mixed Doubles', 'Mixed', 'SEMI FINAL 2', 2.00, NULL),
+('CAN', 11, 'Tennis', 'Mixed Doubles', 'Mixed', 'SEMI FINAL 2', 1.00, NULL),
+('CAN', 11, 'Tennis', 'Mixed Doubles', 'Mixed', 'BRONZE MATCH', 2.00, 'Bronze'),
+('NED', 12, 'Tennis', 'Mixed Doubles', 'Mixed', 'BRONZE MATCH', 1.00, NULL),
+('CZE', 9,  'Tennis', 'Mixed Doubles', 'Mixed', 'FINAL', 2.00, 'Gold'),
+('CHN', 10, 'Tennis', 'Mixed Doubles', 'Mixed', 'FINAL', 1.00, 'Silver'),
+('NED', 1, 'Field Hockey', 'Tournament', 'Male', 'SEMI FINAL 1', 2.00, NULL),
+('IND', 3, 'Field Hockey', 'Tournament', 'Male', 'SEMI FINAL 1', 2.00, NULL),
+('GER', 2, 'Field Hockey', 'Tournament', 'Male', 'SEMI FINAL 2', 3.00, NULL),
+('ESP', 4, 'Field Hockey', 'Tournament', 'Male', 'SEMI FINAL 2', 1.00, NULL),
+('IND', 3, 'Field Hockey', 'Tournament', 'Male', 'BRONZE MATCH', 2.00, 'Bronze'),
+('ESP', 4, 'Field Hockey', 'Tournament', 'Male', 'BRONZE MATCH', 1.00, NULL),
+('NED', 1, 'Field Hockey', 'Tournament', 'Male', 'FINAL', 3.00, 'Gold'),
+('GER', 2, 'Field Hockey', 'Tournament', 'Male', 'FINAL', 2.00, 'Silver'),
+('NED', 5, 'Field Hockey', 'Tournament', 'Female', 'SEMI FINAL 1', 3.00, NULL),
+('BEL', 8, 'Field Hockey', 'Tournament', 'Female', 'SEMI FINAL 1', 0.00, NULL),
+('CHN', 6, 'Field Hockey', 'Tournament', 'Female', 'SEMI FINAL 2', 2.00, NULL),
+('ARG', 7, 'Field Hockey', 'Tournament', 'Female', 'SEMI FINAL 2', 1.00, NULL),
+('ARG', 7, 'Field Hockey', 'Tournament', 'Female', 'BRONZE MATCH', 3.00, 'Bronze'),
+('BEL', 8, 'Field Hockey', 'Tournament', 'Female', 'BRONZE MATCH', 2.00, NULL),
+('NED', 5, 'Field Hockey', 'Tournament', 'Female', 'FINAL', 1.00, 'Gold'),
+('CHN', 6, 'Field Hockey', 'Tournament', 'Female', 'FINAL', 1.00, 'Silver');
+/*!40000 ALTER TABLE `team_participation` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `venue`
 --
 
@@ -509,6 +880,18 @@ CREATE TABLE `venue` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `venue`
+--
+
+LOCK TABLES `venue` WRITE;
+/*!40000 ALTER TABLE `venue` DISABLE KEYS */;
+INSERT INTO `venue` (`venue_id`, `name`, `capacity`, `city`, `country`) VALUES
+(1, 'Stade Roland Garros',    15000, 'Paris', 'France'),
+(2, 'Stade Yves-du-Manoir',   15000, 'Paris', 'France');
+/*!40000 ALTER TABLE `venue` ENABLE KEYS */;
+UNLOCK TABLES;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -519,4 +902,4 @@ CREATE TABLE `venue` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-04-07 16:45:33
+-- Dump completed on 2026-04-12 16:45:33
