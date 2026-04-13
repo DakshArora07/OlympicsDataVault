@@ -2,27 +2,27 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="page-title">OlympicsDataVault</div>
+    <div class="page-title">OlympicsDataVault</div>
 
 
-<div class="stat-row">
-    <div class="stat-box">
-        <div class="stat-number">{{ athlete_count }}</div>
-        <div class="stat-label">Athletes</div>
+    <div class="stat-row">
+        <div class="stat-box">
+            <div class="stat-number">{{ athlete_count }}</div>
+            <div class="stat-label">Athletes</div>
+        </div>
+        <div class="stat-box gold-border">
+            <div class="stat-number">{{ country_count }}</div>
+            <div class="stat-label">Countries</div>
+        </div>
+        <div class="stat-box red-border">
+            <div class="stat-number">{{ sport_count }}</div>
+            <div class="stat-label">Sports</div>
+        </div>
+        <div class="stat-box green-border">
+            <div class="stat-number">{{ venue_count }}</div>
+            <div class="stat-label">Venues</div>
+        </div>
     </div>
-    <div class="stat-box gold-border">
-        <div class="stat-number">{{ country_count }}</div>
-        <div class="stat-label">Countries</div>
-    </div>
-    <div class="stat-box red-border">
-        <div class="stat-number">{{ sport_count }}</div>
-        <div class="stat-label">Sports</div>
-    </div>
-    <div class="stat-box green-border">
-        <div class="stat-number">{{ venue_count }}</div>
-        <div class="stat-label">Venues</div>
-    </div>
-</div>
 
 
 
@@ -32,41 +32,41 @@
             <a href="{{ url_for('misc.medals') }}" class="btn btn-secondary btn-sm">Full table</a>
         </div>
         {% if medal_tally %}
-        <table>
-            <thead>
+            <table>
+                <thead>
                 <tr>
                     <th>#</th>
                     <th>Country</th>
-                    <th>&#127948;</th>
-                    <th>&#127949;</th>
-                    <th>&#127950;</th>
+                    <th>&#129351; Gold</th>
+                    <th>&#129352; Silver</th>
+                    <th>&#129353; Bronze</th>
                     <th>Total</th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 {% for row in medal_tally %}
-                <tr>
-                    <td class="text-muted text-small">{{ loop.index }}</td>
-                    <td>
-                        {% if row.flag %}
-                        <img src="{{ row.flag }}" alt="" width="22" height="15"
-                             style="vertical-align:middle;margin-right:6px;border-radius:2px;"
-                             onerror="this.style.display='none'">
-                        {% endif %}
-                        <strong>{{ row.country }}</strong>
-                    </td>
-                    <td class="gold-text">{{ row.gold or 0 }}</td>
-                    <td class="silver-text">{{ row.silver or 0 }}</td>
-                    <td class="bronze-text">{{ row.bronze or 0 }}</td>
-                    <td><strong>{{ row.total or 0 }}</strong></td>
-                </tr>
+                    <tr>
+                        <td class="text-muted text-small">{{ loop.index }}</td>
+                        <td>
+                            {% if row.flag %}
+                                <img src="{{ row.flag }}" alt="" width="22" height="15"
+                                     style="vertical-align:middle;margin-right:6px;border-radius:2px;"
+                                     onerror="this.style.display='none'">
+                            {% endif %}
+                            <strong>{{ row.country }}</strong>
+                        </td>
+                        <td class="gold-text">{{ row.gold or 0 }}</td>
+                        <td class="silver-text">{{ row.silver or 0 }}</td>
+                        <td class="bronze-text">{{ row.bronze or 0 }}</td>
+                        <td><strong>{{ row.total or 0 }}</strong></td>
+                    </tr>
                 {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
         {% else %}
-        <div class="card-body text-muted">No medals awarded yet.</div>
+            <div class="card-body text-muted">No medals awarded yet.</div>
         {% endif %}
-  
 
-</div>
+
+    </div>
 {% endblock %}
